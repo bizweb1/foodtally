@@ -251,6 +251,22 @@
   .acct-email{font-size:15px;font-weight:700;margin-bottom:4px;word-break:break-all}
   .acct-status{font-size:13px;color:var(--muted);margin-bottom:6px}
 
+  /* receipt scanner */
+  .scan-progress{height:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:6px 0 10px}
+  .scan-progress-bar{height:100%;width:0%;background:var(--accent);border-radius:6px;transition:width .25s}
+  .scan-status{font-size:13px;color:var(--muted);text-align:center;margin-bottom:8px}
+  .scan-review-head{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;line-height:1.4}
+  .scan-item{display:flex;gap:7px;align-items:center;margin-bottom:7px}
+  .scan-item input.si-name{flex:1;min-width:0;padding:10px;font-size:14px}
+  .scan-item input.si-price{width:74px;flex:none;padding:10px;font-size:14px;text-align:right}
+  .scan-item .si-del{background:none;border:none;color:var(--over);font-size:18px;cursor:pointer;flex:none;padding:4px 6px;line-height:1}
+  .scan-addrow{width:100%;background:none;border:1px dashed var(--line);color:var(--muted);
+    border-radius:10px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin:4px 0 12px}
+  .scan-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .scan-count{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .scan-foot .plan-cta{width:auto;flex:none;padding:13px 20px}
+  .scan-none{color:var(--muted);text-align:center;padding:14px 6px;font-size:13.5px;line-height:1.5}
+
   /* cart action buttons */
   .cart-actions{display:flex;gap:9px;margin-top:14px}
   .ca-btn{
@@ -358,6 +374,7 @@
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -446,12 +463,12 @@
     <div class="plan plan-pro">
       <div class="plan-head"><span class="plan-name">⭐ Cart Tally Pro</span><span class="plan-price">$2.99<small>/mo</small></span></div>
       <ul class="plan-feats">
+        <li>✓ Receipt scanner</li>
         <li>✓ Saved shopping lists</li>
-        <li>✓ Trip history</li>
+        <li>✓ Trip history &amp; price tracking</li>
         <li>✓ Spending analytics &amp; charts</li>
-        <li>✓ Price history per item</li>
       </ul>
-      <div class="plan-note">All four features are live in this version. Payment &amp; secure unlock connect via Stripe at launch.</div>
+      <div class="plan-note">All five features are live in this version. Payment &amp; secure unlock connect via Stripe at launch.</div>
       <button class="b-save plan-cta" id="upgradeBtn">Upgrade Now</button>
     </div>
 
@@ -515,6 +532,36 @@
     <div class="acct-status" id="acctStatus"></div>
     <button class="b-cancel plan-close" id="acctClose">Close</button>
     <button class="auth-link" id="acctSignout" style="color:var(--over)">Sign out</button>
+  </div>
+</div>
+
+<!-- Receipt scanner modal -->
+<div class="modal-bg" id="scanModal">
+  <div class="modal pro-modal">
+    <h3>📷 Scan a receipt</h3>
+    <p class="auth-sub" id="scanIntro">Take a photo of your receipt — Cart Tally reads the items, then you review and edit before adding. Works best on a flat, well-lit receipt.</p>
+
+    <input type="file" id="scanInput" accept="image/*" capture="environment" style="display:none">
+    <div id="scanStage1">
+      <button class="b-save plan-cta" id="scanTakeBtn">📸 Take / choose photo</button>
+    </div>
+
+    <div id="scanStage2" style="display:none">
+      <div class="scan-progress"><div class="scan-progress-bar" id="scanBar"></div></div>
+      <div class="scan-status" id="scanStatus">Reading receipt…</div>
+    </div>
+
+    <div id="scanStage3" style="display:none">
+      <div class="scan-review-head">Review &amp; edit — fix anything wrong, then add.</div>
+      <div id="scanReview"></div>
+      <button class="scan-addrow" id="scanAddRow">+ Add a missed item</button>
+      <div class="scan-foot">
+        <div class="scan-count" id="scanCount">0 items · $0.00</div>
+        <button class="b-save plan-cta" id="scanConfirm">Add to cart</button>
+      </div>
+    </div>
+
+    <button class="b-cancel plan-close" id="scanClose">Cancel</button>
   </div>
 </div>
 
@@ -889,6 +936,8 @@ function updateTotals(){
 const STRIPE_PAYMENT_LINK = "";
 
 const PRO_FEATURES = [
+  {key:"scan", title:"Receipt scanner", icon:"📷", desc:"Snap a receipt, auto-fill the cart",
+   teaser:`<div class="ts-line"><span class="ts-bar w70"></span><span class="ts-amt">$3.99</span></div><div class="ts-line"><span class="ts-bar w50"></span><span class="ts-amt">$7.49</span></div><div class="ts-cap">Photo → items, automatically</div>`},
   {key:"lists", title:"Saved lists", icon:"💾", desc:"Save & reload named carts",
    teaser:`<div class="ts-line"><span class="ts-bar w70"></span></div><div class="ts-line"><span class="ts-bar w50"></span></div><div class="ts-cap">Weekly · Costco · Party</div>`},
   {key:"history", title:"Trip history", icon:"🧾", desc:"Every shop, saved",
@@ -915,7 +964,8 @@ function renderProSection(){
       ${isPro ? `<div class="pro-open-hint">Open →</div>` : ""}`;
     card.onclick = ()=>{
       if(!isPro){ openPro(); return; }
-      if(f.key === "lists") openLists();
+      if(f.key === "scan") openScanner();
+      else if(f.key === "lists") openLists();
       else openHistory();   // history, analytics, prices all live in the history modal
     };
     grid.appendChild(card);
@@ -1113,6 +1163,118 @@ function openHistory(){
 }
 $("historyClose").onclick = ()=> $("historyModal").classList.remove("on");
 $("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") $("historyModal").classList.remove("on"); });
+
+/* ---------- Receipt scanner (Tesseract.js OCR) ---------- */
+let scanItems = [];   // [{name, price}]
+
+function openScanner(){
+  scanItems = [];
+  $("scanStage1").style.display = "block";
+  $("scanStage2").style.display = "none";
+  $("scanStage3").style.display = "none";
+  $("scanBar").style.width = "0%";
+  $("scanModal").classList.add("on");
+}
+$("scanClose").onclick = ()=> $("scanModal").classList.remove("on");
+$("scanModal").addEventListener("click",e=>{ if(e.target.id==="scanModal") $("scanModal").classList.remove("on"); });
+$("scanTakeBtn").onclick = ()=> $("scanInput").click();
+
+$("scanInput").onchange = async (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(typeof Tesseract === "undefined"){
+    alert("The text-reader library didn't load. Check your connection and try again.");
+    return;
+  }
+  // stage 2: progress
+  $("scanStage1").style.display = "none";
+  $("scanStage2").style.display = "block";
+  $("scanStatus").textContent = "Reading receipt…";
+  $("scanBar").style.width = "5%";
+
+  try{
+    const { data } = await Tesseract.recognize(file, "eng", {
+      logger: m=>{
+        if(m.status === "recognizing text"){
+          $("scanBar").style.width = Math.round(5 + m.progress*90) + "%";
+        } else {
+          $("scanStatus").textContent = m.status.charAt(0).toUpperCase()+m.status.slice(1)+"…";
+        }
+      }
+    });
+    $("scanBar").style.width = "100%";
+    scanItems = parseReceipt(data.text || "");
+    showScanReview();
+  }catch(err){
+    $("scanStatus").textContent = "Couldn't read that image. Try a clearer, flatter photo.";
+    setTimeout(()=>{ $("scanStage2").style.display="none"; $("scanStage1").style.display="block"; }, 1800);
+  }finally{
+    $("scanInput").value = "";  // allow re-selecting same file
+  }
+};
+
+/* turn raw OCR text into [{name, price}] */
+function parseReceipt(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const skip = /\b(subtotal|sub total|total|tax|change|cash|credit|debit|visa|master|amex|balance|tend|tender|due|payment|account|card|approval|auth|ref|店|店舗|qty|item count|items sold|savings|you saved|loyalty|points|member|store|phone|tel|www|http|receipt|thank|welcome|date|time|cashier|register|reg#|trans|order|invoice)\b/i;
+  const out = [];
+  for(const line of lines){
+    if(skip.test(line)) continue;
+    // find a price near the end: 1-4 digits, dot, 2 digits (optional $)
+    const m = line.match(/\$?\s*(\d{1,4}[.,]\d{2})\s*[A-Z]?$/);
+    if(!m) continue;
+    const price = parseFloat(m[1].replace(",", "."));
+    if(isNaN(price) || price <= 0 || price > 9999) continue;
+    // name = everything before the matched price
+    let name = line.slice(0, m.index).replace(/[.\-_*•]+$/,"").trim();
+    // strip leading qty/codes like "2 " or "001234567"
+    name = name.replace(/^\d{6,}\s*/,"").replace(/^\d+\s+(?=[A-Za-z])/,"").trim();
+    // drop lines that are basically just numbers or too short
+    if(name.replace(/[^A-Za-z]/g,"").length < 2) continue;
+    // title-case-ish cleanup
+    name = name.replace(/\s{2,}/g," ");
+    out.push({ name, price });
+  }
+  return out;
+}
+
+function showScanReview(){
+  $("scanStage2").style.display = "none";
+  $("scanStage3").style.display = "block";
+  renderScanReview();
+}
+function renderScanReview(){
+  const wrap = $("scanReview");
+  wrap.innerHTML = "";
+  if(scanItems.length === 0){
+    wrap.innerHTML = `<div class="scan-none">No items detected automatically.<br>Add them by hand below, or cancel and try a clearer photo.</div>`;
+  }
+  scanItems.forEach((it,i)=>{
+    const row = document.createElement("div");
+    row.className = "scan-item";
+    row.innerHTML = `
+      <input class="si-name" value="${esc(it.name)}" placeholder="Item name">
+      <input class="si-price" value="${it.price.toFixed(2)}" inputmode="decimal" placeholder="0.00">
+      <button class="si-del" title="Remove">×</button>`;
+    row.querySelector(".si-name").oninput = e=>{ scanItems[i].name = e.target.value; updateScanCount(); };
+    row.querySelector(".si-price").oninput = e=>{ scanItems[i].price = parseFloat(e.target.value)||0; updateScanCount(); };
+    row.querySelector(".si-del").onclick = ()=>{ scanItems.splice(i,1); renderScanReview(); };
+    wrap.appendChild(row);
+  });
+  updateScanCount();
+}
+function updateScanCount(){
+  const valid = scanItems.filter(it=>it.name.trim() && it.price>0);
+  const total = valid.reduce((s,it)=>s+it.price,0);
+  $("scanCount").textContent = `${valid.length} item${valid.length!==1?"s":""} · ${money(total)}`;
+}
+$("scanAddRow").onclick = ()=>{ scanItems.push({name:"",price:0}); renderScanReview(); };
+$("scanConfirm").onclick = ()=>{
+  const valid = scanItems.filter(it=>it.name.trim() && it.price>0);
+  if(valid.length === 0){ alert("Add at least one item with a name and price."); return; }
+  valid.forEach(it=> addToCart(it.name.trim(), it.price, taxRate>0));
+  $("scanModal").classList.remove("on");
+};
 
 /* ---------- receipt / print ---------- */
 function buildReceipt(){
