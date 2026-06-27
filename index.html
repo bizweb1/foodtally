@@ -289,6 +289,11 @@
   .fuel-fill .ff-t{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
   .fuel-fill .ff-mpg{color:var(--accent-deep);font-weight:700;font-size:11.5px}
   .fuel-fill .ff-del{background:none;border:none;color:var(--over);font-size:16px;cursor:pointer;flex:none;padding:2px 4px}
+  .fuel-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin:4px 0 6px}
+  .fch-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fch-chg{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+  .fuel-spark{width:100%;height:60px;display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:4px}
+  .fuel-spark-x{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:3px;margin-bottom:6px}
 
   /* cart action buttons */
   .cart-actions{display:flex;gap:9px;margin-top:14px}
@@ -1476,12 +1481,56 @@ function renderFuel(){
   if(sorted.length === 0){
     stats.innerHTML = "";
   } else {
+    // price/gal trend vs first recorded price
+    const ppgFills = sorted.filter(f=>f.ppg);
+    let trendHtml = "";
+    if(ppgFills.length >= 2){
+      const first = ppgFills[0].ppg, last = ppgFills[ppgFills.length-1].ppg;
+      const chg = first ? ((last-first)/first)*100 : 0;
+      const arrow = chg>0.5?"↑":chg<-0.5?"↓":"→";
+      const col = chg>0.5?"var(--over)":chg<-0.5?"var(--accent-deep)":"var(--muted)";
+      // sparkline of last up-to-12 ppg points
+      const pts = ppgFills.slice(-12).map(f=>f.ppg);
+      const min = Math.min(...pts), max = Math.max(...pts), span = (max-min)||1;
+      const W=300, H=60, step = pts.length>1 ? W/(pts.length-1) : W;
+      const coords = pts.map((v,i)=> `${(i*step).toFixed(1)},${(H - ((v-min)/span)*(H-10) - 5).toFixed(1)}`).join(" ");
+      trendHtml = `
+        <div class="fuel-chart-head">
+          <span class="fch-lbl">Price / gallon trend</span>
+          <span class="fch-chg" style="color:${col}">${arrow} ${Math.abs(chg).toFixed(1)}% · $${last.toFixed(2)} now</span>
+        </div>
+        <svg class="fuel-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+          <polyline points="${coords}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+        </svg>
+        <div class="fuel-spark-x"><span>$${min.toFixed(2)}</span><span>$${max.toFixed(2)}</span></div>`;
+    }
+
+    // monthly spend (last up to 6 months)
+    const byMonth = {};
+    sorted.forEach(f=>{
+      const d = new Date(f.ts);
+      const k = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+      byMonth[k] = (byMonth[k]||0) + f.total;
+    });
+    const months = Object.keys(byMonth).sort().slice(-6);
+    let monthHtml = "";
+    if(months.length >= 1){
+      const mMax = Math.max(...months.map(m=>byMonth[m]),1);
+      const bars = months.map(m=>{
+        const h = Math.round((byMonth[m]/mMax)*100);
+        const [y,mo] = m.split("-");
+        const lbl = new Date(y, mo-1, 1).toLocaleDateString(undefined,{month:"short"});
+        return `<div class="bc-col"><div class="bc-v">$${Math.round(byMonth[m])}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${lbl}</div></div>`;
+      }).join("");
+      monthHtml = `<div class="fch-lbl" style="margin-top:14px;display:block">Monthly fuel spend</div><div class="bchart">${bars}</div>`;
+    }
+
     stats.innerHTML = `<div class="fuel-stat-row">
       <div class="fuel-stat"><div class="fk">Fill-ups</div><div class="fv">${sorted.length}</div></div>
       <div class="fuel-stat"><div class="fk">Total spent</div><div class="fv">${money(totalSpent)}</div></div>
       ${avgMpg?`<div class="fuel-stat"><div class="fk">Avg MPG</div><div class="fv">${avgMpg.toFixed(1)}</div></div>`:``}
       ${avgPpg?`<div class="fuel-stat"><div class="fk">Avg $/gal</div><div class="fv">$${avgPpg.toFixed(2)}</div></div>`:``}
-    </div>`;
+    </div>${trendHtml}${monthHtml}`;
   }
 
   // list (newest first)
@@ -1491,11 +1540,27 @@ function renderFuel(){
     list.innerHTML = `<div class="scan-none">No fill-ups yet.<br>Add your first one above. Enter the odometer each time to start seeing MPG.</div>`;
     return;
   }
+  // price change vs previous fill-up (chronological)
+  let prevPpg = null;
+  withMpg.forEach(f=>{
+    if(f.ppg!=null && prevPpg!=null){
+      f.ppgDelta = f.ppg - prevPpg;
+    } else { f.ppgDelta = null; }
+    if(f.ppg!=null) prevPpg = f.ppg;
+  });
+
   withMpg.slice().reverse().forEach(f=>{
     const d = new Date(f.ts);
     const parts = [];
     if(f.gallons) parts.push(f.gallons.toFixed(2)+" gal");
-    if(f.ppg) parts.push("$"+f.ppg.toFixed(2)+"/gal");
+    if(f.ppg){
+      let tag = "$"+f.ppg.toFixed(2)+"/gal";
+      if(f.ppgDelta!=null && Math.abs(f.ppgDelta)>=0.01){
+        const up = f.ppgDelta>0;
+        tag += ` <span style="color:${up?'var(--over)':'var(--accent-deep)'};font-weight:700">${up?'↑':'↓'}$${Math.abs(f.ppgDelta).toFixed(2)}</span>`;
+      }
+      parts.push(tag);
+    }
     if(f.odometer!=null) parts.push(f.odometer.toLocaleString()+" mi");
     const row = document.createElement("div");
     row.className = "fuel-fill";
