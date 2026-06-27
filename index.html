@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cart Tally</title>
+<style>
+  :root{
+    --bg:#0f1410;
+    --panel:#19211a;
+    --panel-2:#222d24;
+    --line:#33402f;
+    --ink:#eef3ea;
+    --muted:#8fa388;
+    --accent:#a8e063;
+    --accent-deep:#76b948;
+    --warn:#e8b13a;
+    --over:#e0613a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;flex-direction:column;
+    min-height:100vh;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .wrap{width:100%;max-width:520px;margin:0 auto;flex:1;display:flex;flex-direction:column}
+
+  /* ===== Header total ===== */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg,#141a14,#11160f);
+    border-bottom:1px solid var(--line);
+    padding:18px 18px 14px;
+  }
+  .eyebrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .eyebrow .name{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .eyebrow .count{font-size:12px;color:var(--muted)}
+  .total{
+    font-variant-numeric:tabular-nums;
+    font-weight:800;letter-spacing:-.02em;
+    font-size:54px;line-height:1;
+    display:flex;align-items:baseline;gap:4px;
+  }
+  .total .cur{font-size:26px;color:var(--accent);font-weight:700;transform:translateY(-2px)}
+  .subline{display:flex;gap:14px;margin-top:8px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .subline b{color:var(--ink);font-weight:600}
+
+  /* budget bar */
+  .budget{margin-top:14px}
+  .budget .track{height:10px;border-radius:6px;background:var(--panel-2);overflow:hidden;border:1px solid var(--line)}
+  .budget .fill{height:100%;width:0%;background:var(--accent);transition:width .35s ease,background .35s ease;border-radius:6px}
+  .budget .meta{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .budget .meta b{color:var(--ink)}
+
+  /* ===== Budget hero block ===== */
+  .bhero{
+    margin-top:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:15px 16px 16px;
+  }
+  .bhero .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+  .bhero .top .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .bhero .top .cap{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  /* segmented gauge */
+  .gauge{display:flex;gap:3px;height:18px}
+  .gauge .seg{flex:1;border-radius:3px;background:var(--panel-2);border:1px solid var(--line);transition:background .25s ease,border-color .25s ease}
+  .gauge .seg.on{background:var(--accent);border-color:var(--accent)}
+  .gauge.warn .seg.on{background:var(--warn);border-color:var(--warn)}
+  .gauge.over .seg{background:var(--over);border-color:var(--over)}
+  /* spent / remaining row */
+  .brow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px}
+  .brow .blockL .k,.brow .blockR .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:3px}
+  .brow .blockR{text-align:right}
+  .brow .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1}
+  .brow .v.spent{color:var(--ink)}
+  .brow .v.rem{color:var(--accent-deep)}
+  .brow .v.rem.warn{color:var(--warn)}
+  /* over banner */
+  .bover{
+    display:none;margin-top:13px;background:rgba(224,97,58,.14);
+    border:1px solid var(--over);border-radius:11px;padding:11px 13px;
+    color:var(--over);font-weight:800;font-size:16px;
+    display:none;align-items:center;gap:8px;font-variant-numeric:tabular-nums;
+  }
+  .bover.on{display:flex}
+
+  /* ===== Sections ===== */
+  main{flex:1;overflow-y:auto;padding:16px 14px 120px}
+  .sec-head{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:18px 4px 8px}
+  .sec-head:first-child{margin-top:2px}
+
+  /* saved chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:999px;padding:9px 13px;font-size:14px;font-weight:600;
+    display:flex;align-items:center;gap:8px;cursor:pointer;
+    transition:transform .08s ease,border-color .15s;
+  }
+  .chip:active{transform:scale(.94);border-color:var(--accent-deep)}
+  .chip .p{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:700}
+  .chip.add{border-style:dashed;color:var(--muted)}
+  .chip .edit{color:var(--muted);font-size:12px}
+
+  /* cart list */
+  /* category grouping */
+  .cat-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:16px 2px 8px;gap:10px;
+  }
+  .cat-head:first-of-type{margin-top:4px}
+  .cat-toggle{
+    display:flex;align-items:center;gap:8px;background:none;border:none;
+    color:var(--ink);cursor:pointer;padding:0;font-family:inherit;
+  }
+  .cat-toggle .caret{color:var(--muted);font-size:12px;width:12px}
+  .cat-name{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--accent)}
+  .cat-pill{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--muted);
+    font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums;
+  }
+  .cat-sub{font-size:13px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .recat{
+    background:none;border:none;color:var(--accent-deep);font-size:12px;
+    font-family:inherit;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;
+  }
+  .item{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:9px;
+  }
+  .item .body{flex:1;min-width:0}
+  .item .nm{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .det{font-size:12.5px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+  .item .line{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+  .qbtn{
+    width:32px;height:32px;border-radius:9px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);font-size:18px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;
+  }
+  .qbtn:active{background:var(--accent-deep);color:#10180c}
+  .qty{min-width:20px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+  .del{color:var(--over);background:none;border:none;font-size:13px;cursor:pointer;padding:6px;font-weight:600}
+  .empty{color:var(--muted);text-align:center;padding:34px 20px;font-size:14px;line-height:1.5}
+
+  /* ===== Add bar ===== */
+  .addbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:linear-gradient(180deg,#11160f,#0c100a);
+    border-top:1px solid var(--line);
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  }
+  .addbar .row{display:flex;gap:8px;max-width:520px;margin:0 auto}
+  input,select{
+    background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:11px;padding:13px 12px;font-size:16px;font-family:inherit;width:100%;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--accent-deep)}
+  input::placeholder{color:#5f6f58}
+  .f-name{flex:1}
+  .f-price{width:96px;flex:none}
+  .btn-add{
+    background:var(--accent);color:#0e160a;border:none;border-radius:11px;
+    font-weight:800;font-size:15px;padding:0 18px;cursor:pointer;flex:none;
+    letter-spacing:.02em;
+  }
+  .btn-add:active{background:var(--accent-deep)}
+
+  /* ===== Modal ===== */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(6,9,5,.72);z-index:60;
+    display:none;align-items:flex-end;justify-content:center;
+    backdrop-filter:blur(2px);
+  }
+  .modal-bg.on{display:flex}
+  .modal{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:20px 18px 26px;
+  }
+  .modal h3{font-size:17px;margin-bottom:14px;font-weight:700}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+  .modal-actions{display:flex;gap:8px;margin-top:6px}
+  .modal-actions button{flex:1;border-radius:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;border:1px solid var(--line)}
+  .b-save{background:var(--accent);color:#0e160a;border:none}
+  .b-cancel{background:transparent;color:var(--muted)}
+  .b-remove{background:transparent;color:var(--over);border-color:var(--over)}
+  .settings-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-weight:600}
+
+  /* print button + section header row */
+  .sec-head-row{display:flex;align-items:center;justify-content:space-between}
+  .print-btn{
+    background:var(--panel);border:1px solid var(--line);color:var(--accent);
+    border-radius:9px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;
+    letter-spacing:.04em;text-transform:none;font-family:inherit;
+  }
+  .print-btn:active{background:var(--panel-2)}
+
+  /* ===== Pro teasers ===== */
+  .pro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pro-card{
+    position:relative;overflow:hidden;text-align:left;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:13px 13px 14px;font-family:inherit;color:var(--ink);min-height:128px;
+  }
+  .pro-card:active{border-color:var(--accent-deep)}
+  .pro-lock{position:absolute;top:10px;right:11px;font-size:15px;z-index:3;filter:none}
+  .pro-badge{
+    display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    color:#0e160a;background:var(--accent);border-radius:999px;padding:2px 8px;margin-bottom:8px;
+  }
+  .pro-title{font-size:14px;font-weight:700;margin-bottom:10px}
+  /* the teaser content is blurred + dimmed */
+  .pro-teaser{
+    filter:blur(2.2px);opacity:.55;pointer-events:none;user-select:none;
+  }
+  .ts-cap{font-size:11px;color:var(--muted);margin-top:7px;font-weight:600}
+  /* receipt scanner teaser */
+  .ts-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+  .ts-bar{height:8px;border-radius:3px;background:var(--panel-2);display:block}
+  .ts-bar.w70{width:70%}.ts-bar.w50{width:50%}.ts-bar.w60{width:60%}
+  .ts-amt{font-size:11px;color:var(--accent);font-weight:700}
+  .ts-cam{font-size:10.5px;color:var(--muted);margin-top:6px}
+  /* price history sparkline */
+  .ts-spark{width:100%;height:46px;display:block}
+  /* analytics bars */
+  .ts-bars{display:flex;align-items:flex-end;gap:5px;height:48px}
+  .ts-bars span{flex:1;background:var(--accent-deep);border-radius:3px 3px 0 0;display:block}
+  /* family */
+  .ts-avatars{display:flex;gap:6px;font-size:26px}
+
+  .pro-cta-wide{
+    width:100%;margin-top:12px;background:linear-gradient(90deg,var(--accent),var(--accent-deep));
+    color:#0e160a;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;
+    cursor:pointer;font-family:inherit;letter-spacing:.01em;
+  }
+  .pro-cta-wide:active{filter:brightness(.93)}
+
+  /* cart action buttons */
+  .cart-actions{display:flex;gap:9px;margin-top:14px}
+  .ca-btn{
+    flex:1;background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;
+    font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .ca-btn:active{background:var(--panel-2)}
+  .ca-primary{background:var(--accent);color:#0e160a;border:none}
+  .ca-pro{font-size:9px;font-weight:800;background:rgba(0,0,0,.18);color:inherit;border-radius:4px;padding:1px 4px;letter-spacing:.05em}
+  .ca-primary .ca-pro{background:rgba(0,0,0,.18)}
+  .ca-btn.is-pro .ca-pro{display:none}
+
+  /* unlocked pro card variant */
+  .pro-card.unlocked{cursor:pointer}
+  .pro-card.unlocked .pro-teaser{filter:none;opacity:1}
+  .pro-card.unlocked .pro-lock{content:"";}
+  .pro-badge.live{background:var(--accent-deep);color:#fff}
+  .pro-open-hint{font-size:11px;color:var(--accent);font-weight:700;margin-top:8px}
+
+  /* test unlock */
+  .plan-test{width:100%;background:none;border:1px dashed var(--line);color:var(--muted);
+    padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border-radius:9px;margin-top:4px}
+
+  /* saved lists rows */
+  .list-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+  .list-row .lr-meta{min-width:0}
+  .list-row .lr-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list-row .lr-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .list-row .lr-acts{display:flex;gap:6px;flex:none}
+  .lr-load{background:var(--accent);color:#0e160a;border:none;border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .lr-del{background:none;border:none;color:var(--over);font-size:12px;cursor:pointer;font-weight:600}
+  .pro-empty{color:var(--muted);text-align:center;padding:22px 8px;font-size:13.5px;line-height:1.5}
+
+  /* analytics */
+  .stat-row{display:flex;gap:9px;margin-bottom:12px}
+  .stat{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px}
+  .stat .sk{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .stat .sv{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:3px}
+  .chart-lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:14px 0 8px}
+  .bchart{display:flex;align-items:flex-end;gap:6px;height:110px;padding-top:6px}
+  .bchart .bc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+  .bchart .bc-bar{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;transition:height .3s}
+  .bchart .bc-x{font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .bchart .bc-v{font-size:9.5px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .catbar{margin-bottom:8px}
+  .catbar .cb-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
+  .catbar .cb-name{color:var(--ink);font-weight:600}
+  .catbar .cb-amt{color:var(--muted);font-variant-numeric:tabular-nums}
+  .catbar .cb-track{height:7px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+  .catbar .cb-fill{height:100%;background:var(--accent-deep);border-radius:4px}
+  .trip-row{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+  .trip-row .tr-d{color:var(--muted)}
+  .trip-row .tr-t{font-weight:700;font-variant-numeric:tabular-nums}
+
+  /* ===== Pro modal ===== */
+  .pro-modal{max-height:88vh;overflow-y:auto}
+  .plan{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  .plan-pro{border-color:var(--accent);background:linear-gradient(180deg,rgba(168,224,99,.07),transparent)}
+  .plan-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .plan-name{font-size:15px;font-weight:800}
+  .plan-price{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+  .plan-price small{font-size:12px;color:var(--muted);font-weight:600}
+  .plan-feats{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+  .plan-feats li{font-size:14px;color:var(--ink)}
+  .plan-current{font-size:12px;color:var(--muted);font-weight:700;text-align:center}
+  .plan-note{font-size:11.5px;color:var(--warn);margin-bottom:11px;line-height:1.4}
+  .plan-cta{width:100%;border-radius:11px;padding:14px;font-size:15px;font-weight:800}
+  .plan-close{width:100%;background:none;border:none;color:var(--muted);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+
+  /* keep Pro section off the printed receipt */
+  @media print{ .pro-grid,.pro-cta-wide{display:none !important} }
+
+  /* ===== Receipt (hidden on screen, shown only when printing) ===== */
+  #receipt{display:none}
+  @media print{
+    /* hide the whole app */
+    body > .wrap, .addbar, .modal-bg{display:none !important}
+    body{background:#fff;color:#000;display:block}
+    #receipt{
+      display:block;
+      width:280px;margin:0 auto;padding:8px 4px 28px;
+      font-family:"Courier New",ui-monospace,Menlo,Consolas,monospace;
+      color:#000;font-size:12px;line-height:1.45;
+    }
+    #receipt .r-center{text-align:center}
+    #receipt .r-store{font-size:17px;font-weight:700;letter-spacing:.04em}
+    #receipt .r-sub{font-size:11px}
+    #receipt .r-rule{border:none;border-top:1px dashed #000;margin:7px 0}
+    #receipt .r-rule-solid{border:none;border-top:2px solid #000;margin:7px 0}
+    #receipt .r-cat{font-weight:700;text-transform:uppercase;margin:7px 0 2px;font-size:11px;letter-spacing:.06em}
+    #receipt .r-line{display:flex;justify-content:space-between;gap:8px}
+    #receipt .r-line .r-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #receipt .r-line .r-amt{white-space:nowrap;font-variant-numeric:tabular-nums}
+    #receipt .r-qty{padding-left:10px;font-size:11px;color:#000}
+    #receipt .r-tot{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+    #receipt .r-tot.big{font-size:15px;font-weight:700;margin-top:3px}
+    #receipt .r-foot{margin-top:14px;text-align:center;font-size:11px}
+    #receipt .r-barcode{
+      margin:10px auto 4px;height:42px;width:200px;
+      background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 4px,#000 4px,#000 5px,#fff 5px,#fff 9px);
+    }
+    @page{margin:8mm}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">
+      <span class="name">Cart Tally</span>
+      <button class="settings-btn" id="settingsBtn">⚙ Budget &amp; tax</button>
+    </div>
+    <div class="total"><span class="cur">$</span><span id="grandTotal">0.00</span></div>
+    <div class="subline">
+      <span>Items <b id="itemCount">0</b></span>
+      <span>Subtotal <b id="subtotal">$0.00</b></span>
+      <span>Tax <b id="taxAmt">$0.00</b></span>
+    </div>
+    <div class="bhero" id="budgetWrap" style="display:none">
+      <div class="top">
+        <span class="lbl">Budget</span>
+        <span class="cap" id="budgetVal">$0</span>
+      </div>
+      <div class="gauge" id="gauge"></div>
+      <div class="brow">
+        <div class="blockL">
+          <div class="k">Spent</div>
+          <div class="v spent" id="spentVal">$0.00</div>
+        </div>
+        <div class="blockR">
+          <div class="k">Remaining</div>
+          <div class="v rem" id="remVal">$0.00</div>
+        </div>
+      </div>
+      <div class="bover" id="budgetOver">🔴 <span id="overTxt">Over by $0.00</span></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="sec-head">Tap to add</div>
+    <div class="chips" id="savedChips"></div>
+
+    <div class="sec-head sec-head-row">
+      <span>In your cart</span>
+      <button class="print-btn" id="printBtn">🧾 Print receipt</button>
+    </div>
+    <div id="cart"></div>
+
+    <!-- cart actions (save list / finish trip) -->
+    <div class="cart-actions" id="cartActions" style="display:none">
+      <button class="ca-btn" id="saveCartBtn">💾 Save as list <span class="ca-pro">PRO</span></button>
+      <button class="ca-btn ca-primary" id="finishTripBtn">✓ Finish trip <span class="ca-pro">PRO</span></button>
+    </div>
+
+    <div class="sec-head" id="proHeading" style="margin-top:26px">⭐ Cart Tally Pro</div>
+    <div class="pro-grid" id="proGrid"></div>
+    <button class="pro-cta-wide" id="proCtaWide">⭐ See Cart Tally Pro — $2.99/mo</button>
+  </main>
+
+  <div class="addbar">
+    <div class="row">
+      <input class="f-name" id="addName" placeholder="Item name" autocomplete="off">
+      <input class="f-price" id="addPrice" placeholder="0.00" inputmode="decimal">
+      <button class="btn-add" id="addBtn">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt (print only) -->
+<div id="receipt" aria-hidden="true"></div>
+
+<!-- Upgrade modal -->
+<div class="modal-bg" id="proModal">
+  <div class="modal pro-modal">
+    <h3>Choose your plan</h3>
+    <div class="plan">
+      <div class="plan-head"><span class="plan-name">Free</span><span class="plan-price">$0</span></div>
+      <ul class="plan-feats">
+        <li>✓ Unlimited carts</li>
+        <li>✓ Auto-categorized items</li>
+        <li>✓ Budget tracking</li>
+        <li>✓ Printable receipts</li>
+      </ul>
+      <div class="plan-current">Your current plan</div>
+    </div>
+
+    <div class="plan plan-pro">
+      <div class="plan-head"><span class="plan-name">⭐ Cart Tally Pro</span><span class="plan-price">$2.99<small>/mo</small></span></div>
+      <ul class="plan-feats">
+        <li>✓ Saved shopping lists</li>
+        <li>✓ Trip history</li>
+        <li>✓ Spending analytics &amp; charts</li>
+        <li>✓ Price history per item</li>
+      </ul>
+      <div class="plan-note">All four features are live in this version. Payment &amp; secure unlock connect via Stripe at launch.</div>
+      <button class="b-save plan-cta" id="upgradeBtn">Upgrade Now</button>
+    </div>
+
+    <button class="b-cancel plan-close" id="proCancel">Maybe later</button>
+    <button class="plan-test" id="testUnlockBtn">🔓 Unlock for testing (dev)</button>
+  </div>
+</div>
+
+<!-- Saved Lists modal -->
+<div class="modal-bg" id="listsModal">
+  <div class="modal pro-modal">
+    <h3>💾 Saved lists</h3>
+    <div id="listsBody"></div>
+    <button class="b-save plan-cta" id="saveCurrentAsList" style="margin-top:8px">Save current cart as a list</button>
+    <button class="b-cancel plan-close" id="listsClose">Close</button>
+  </div>
+</div>
+
+<!-- Trip History / Analytics modal -->
+<div class="modal-bg" id="historyModal">
+  <div class="modal pro-modal">
+    <h3>📊 Trips &amp; analytics</h3>
+    <div id="historyBody"></div>
+    <button class="b-cancel plan-close" id="historyClose">Close</button>
+  </div>
+</div>
+
+<!-- Name prompt modal (save list / finish trip) -->
+<div class="modal-bg" id="nameModal">
+  <div class="modal">
+    <h3 id="nameTitle">Name this list</h3>
+    <div class="field"><label id="nameLabel">List name</label><input id="nameInput" autocomplete="off" placeholder="e.g. Weekly groceries"></div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="nameCancel">Cancel</button>
+      <button class="b-save" id="nameSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit / save item modal -->
+<div class="modal-bg" id="itemModal">
+  <div class="modal">
+    <h3 id="modalTitle">Edit saved item</h3>
+    <div class="field"><label>Name</label><input id="mName" autocomplete="off"></div>
+    <div class="field"><label>Usual price</label><input id="mPrice" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label>Taxable?</label>
+      <select id="mTax"><option value="yes">Yes — apply tax</option><option value="no">No tax</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="mCancel">Cancel</button>
+      <button class="b-remove" id="mRemove" style="display:none">Remove</button>
+      <button class="b-save" id="mSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-bg" id="setModal">
+  <div class="modal">
+    <h3>Budget &amp; tax</h3>
+    <div class="field"><label>Budget cap (leave blank for none)</label><input id="sBudget" inputmode="decimal" placeholder="e.g. 120"></div>
+    <div class="field"><label>Sales tax rate %</label><input id="sTax" inputmode="decimal" placeholder="e.g. 8.5"></div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="sCancel">Cancel</button>
+      <button class="b-save" id="sSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recategorize modal -->
+<div class="modal-bg" id="recatModal">
+  <div class="modal">
+    <h3 id="recatTitle">Move to category</h3>
+    <div class="field"><label>Category</label>
+      <select id="recatSelect"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="rcCancel">Cancel</button>
+      <button class="b-save" id="rcSave">Move</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- state (in-memory only) ---------- */
+let saved = [
+  {name:"Milk", price:3.99, tax:false},
+  {name:"Eggs", price:4.49, tax:false},
+  {name:"Bread", price:2.99, tax:false},
+  {name:"Bananas", price:1.29, tax:false},
+  {name:"Chicken", price:7.99, tax:false},
+  {name:"Coffee", price:9.49, tax:true},
+];
+let cart = [];          // {name, price, qty, tax, cat}
+let budget = null;      // number or null
+let taxRate = 0;        // percent
+let editIndex = -1;     // index in saved being edited, -1 = new
+let collapsed = new Set();   // collapsed category names
+let recatIndex = -1;         // cart index being recategorized
+
+/* ---------- Pro features state ---------- */
+let isPro = false;        // unlocked flag (client-side only for now)
+let savedCarts = [];      // [{id, name, items:[...], ts}]
+let trips = [];           // [{id, name, ts, total, sub, tax, count, cats:{cat:amount}}]
+
+const $ = id => document.getElementById(id);
+const money = n => "$" + n.toFixed(2);
+
+/* ---------- persistence (localStorage) ----------
+   Note: works when the file is hosted (e.g. GitHub Pages) or opened locally.
+   Storage is per-device/per-browser. */
+const STORE_KEY = "cartTally.v1";
+function persist(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      saved, cart, budget, taxRate,
+      isPro, savedCarts, trips,
+      cat: cart.map(c=>c.cat)
+    }));
+  }catch(e){ /* storage unavailable (e.g. sandboxed preview) — app still runs */ }
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(Array.isArray(d.saved)) saved = d.saved;
+    if(Array.isArray(d.cart)) cart = d.cart;
+    if(typeof d.budget === "number" || d.budget === null) budget = d.budget;
+    if(typeof d.taxRate === "number") taxRate = d.taxRate;
+    if(typeof d.isPro === "boolean") isPro = d.isPro;
+    if(Array.isArray(d.savedCarts)) savedCarts = d.savedCarts;
+    if(Array.isArray(d.trips)) trips = d.trips;
+  }catch(e){ /* ignore corrupt/unavailable storage */ }
+}
+
+/* ---------- categories (in store-walk order) ---------- */
+const CATEGORIES = [
+  "Produce","Fruits","Vegetables","Dairy & Eggs","Bakery & Bread","Meat","Seafood",
+  "Deli & Prepared Foods","Pantry","Breakfast","Frozen Foods","Snacks","Candy & Sweets",
+  "Beverages","Coffee & Tea","Alcohol","Baby","Pet Supplies","Beauty & Personal Care",
+  "Health & Pharmacy","Household Cleaning","Paper Products","Laundry","Kitchen Supplies",
+  "Home Essentials","Office & School Supplies","Electronics","Automotive","Garden & Outdoor",
+  "Seasonal & Holiday","Party Supplies","Clothing & Accessories","Toys & Games","Sporting Goods",
+  "Home Improvement","Hardware & Tools","Storage & Organization","Floral","Tobacco","Gift Cards",
+  "Miscellaneous / Other"
+];
+const OTHER = "Miscellaneous / Other";
+
+/* keyword → category. First match wins. */
+const KEYWORDS = {
+  "Fruits":["apple","banana","orange","grape","strawberr","blueberr","raspberr","blackberr","mango","pineapple","peach","pear","plum","kiwi","melon","watermelon","cantaloupe","cherry","cherries","lemon","lime","avocado","pomegranate","apricot","fig","date","nectarine","clementine","tangerine","cranberr"],
+  "Vegetables":["lettuce","spinach","kale","broccoli","cauliflower","carrot","celery","cucumber","tomato","potato","onion","garlic","pepper","zucchini","squash","mushroom","corn","peas","cabbage","asparagus","brussel","radish","beet","turnip","eggplant","cilantro","parsley","basil","ginger","scallion","leek","arugula","romaine","greens","salad"],
+  "Produce":["produce"],
+  "Dairy & Eggs":["milk","egg","cheese","yogurt","butter","cream","sour cream","cottage","half and half","creamer","margarine","ghee","kefir","mozzarella","cheddar","parmesan","feta"],
+  "Bakery & Bread":["bread","bagel","bun","roll","tortilla","croissant","muffin","cake","pie","donut","doughnut","pastry","baguette","pita","naan","biscuit","cupcake","brioche"],
+  "Meat":["chicken","beef","pork","steak","ground","bacon","sausage","ham","turkey","lamb","ribs","brisket","chop","wing","drumstick","veal","hot dog","franks","meatball"],
+  "Seafood":["fish","salmon","tuna","shrimp","crab","lobster","tilapia","cod","scallop","oyster","mussel","clam","sardine","mackerel","catfish","halibut","seafood"],
+  "Deli & Prepared Foods":["deli","rotisserie","prepared","sushi","sandwich","wrap","salami","pepperoni","prosciutto","hummus"],
+  "Breakfast":["cereal","oatmeal","oats","granola","pancake","waffle","syrup","pop tart","poptart","grits","breakfast"],
+  "Pantry":["rice","pasta","noodle","flour","sugar","oil","vinegar","sauce","ketchup","mustard","mayo","mayonnaise","salt","spice","seasoning","broth","stock","soup","canned","beans","lentil","peanut butter","jelly","jam","honey","baking","yeast","cornstarch","cracker","salsa","soy sauce","gravy","ramen"],
+  "Frozen Foods":["frozen","ice cream","popsicle","pizza","tv dinner","freezer","fries","nuggets"],
+  "Snacks":["chips","pretzel","popcorn","nuts","trail mix","granola bar","jerky","snack","goldfish"],
+  "Candy & Sweets":["candy","chocolate","gum","mints","lollipop","caramel","fudge","marshmallow","gummy","sweets","truffle"],
+  "Beverages":["soda","juice","water","sparkling","cola","pepsi","sprite","gatorade","lemonade","kombucha","energy drink","drink","seltzer","sports drink"],
+  "Coffee & Tea":["coffee","tea","espresso","latte","k-cup","kcup","matcha","chai"],
+  "Alcohol":["beer","wine","vodka","whiskey","whisky","rum","tequila","gin","liquor","champagne","cider","ale","lager","bourbon","brandy"],
+  "Baby":["diaper","wipes","formula","baby food","pacifier","baby","infant"],
+  "Pet Supplies":["dog food","cat food","pet","litter","dog treat","cat treat","leash","kibble"],
+  "Beauty & Personal Care":["shampoo","conditioner","soap","body wash","lotion","deodorant","toothpaste","toothbrush","floss","mouthwash","razor","shaving","makeup","cosmetic","perfume","cologne","sunscreen","moisturizer","face wash"],
+  "Health & Pharmacy":["vitamin","medicine","tylenol","advil","ibuprofen","aspirin","bandage","band-aid","supplement","probiotic","cough","cold","allergy","first aid","thermometer","pharmacy","melatonin","antacid","tums"],
+  "Household Cleaning":["cleaner","bleach","disinfectant","sponge","clorox","lysol","windex","scrub","cleaning","dish soap","dishwasher"],
+  "Paper Products":["paper towel","toilet paper","tissue","napkin","paper plate","paper cup","kleenex"],
+  "Laundry":["detergent","fabric softener","dryer sheet","laundry","stain remover"],
+  "Kitchen Supplies":["foil","plastic wrap","ziploc","zip lock","sandwich bag","storage bag","trash bag","garbage bag","parchment","wax paper","food container"],
+  "Home Essentials":["light bulb","battery","batteries","candle","air freshener","matches","extension cord"],
+  "Office & School Supplies":["pen","pencil","notebook","stapler","tape","marker","folder","binder","glue","scissors","printer paper","envelope"],
+  "Electronics":["charger","cable","headphone","earbud","usb","hdmi","mouse","keyboard","phone case","electronic"],
+  "Automotive":["motor oil","wiper","car wash","antifreeze","windshield","automotive"],
+  "Garden & Outdoor":["soil","mulch","fertilizer","hose","garden","potting","grill","charcoal","propane"],
+  "Seasonal & Holiday":["christmas","halloween","easter","thanksgiving","holiday","ornament","wrapping paper","seasonal"],
+  "Party Supplies":["balloon","party","streamer","confetti","party hat"],
+  "Clothing & Accessories":["shirt","sock","underwear","hat","glove","scarf","clothing","jacket","pants","t-shirt"],
+  "Toys & Games":["toy","game","puzzle","lego","doll","action figure","board game"],
+  "Sporting Goods":["yoga mat","dumbbell","weights","bike","sporting","fitness"],
+  "Home Improvement":["paint","caulk","sandpaper","drywall","spackle"],
+  "Hardware & Tools":["screw","nail","hammer","drill","wrench","screwdriver","tool","duct tape","bolt","hardware"],
+  "Storage & Organization":["bin","tote","storage box","hanger","organizer","shelf","basket"],
+  "Floral":["flower","bouquet","rose","tulip","floral","plant"],
+  "Tobacco":["cigarette","tobacco","cigar","vape","nicotine"],
+  "Gift Cards":["gift card","giftcard"]
+};
+
+function classify(name){
+  const n = " " + name.toLowerCase().trim() + " ";
+  for(const cat of CATEGORIES){
+    const list = KEYWORDS[cat];
+    if(!list) continue;
+    for(const kw of list){ if(n.includes(kw)) return cat; }
+  }
+  return OTHER;
+}
+
+/* ---------- render ---------- */
+function render(){
+  // saved chips
+  const chips = $("savedChips");
+  chips.innerHTML = "";
+  saved.forEach((s,i)=>{
+    const c = document.createElement("button");
+    c.className = "chip";
+    c.innerHTML = `<span>${esc(s.name)}</span><span class="p">${money(s.price)}</span>`;
+    c.onclick = ()=> addToCart(s.name, s.price, s.tax, s.cat);
+    c.oncontextmenu = (e)=>{e.preventDefault();openEdit(i);};
+    // long-press to edit
+    let t; c.addEventListener("touchstart",()=>{t=setTimeout(()=>openEdit(i),550);},{passive:true});
+    c.addEventListener("touchend",()=>clearTimeout(t));
+    c.addEventListener("touchmove",()=>clearTimeout(t));
+    chips.appendChild(c);
+  });
+  const addChip = document.createElement("button");
+  addChip.className = "chip add";
+  addChip.innerHTML = `<span>+ Save item</span>`;
+  addChip.onclick = ()=> openEdit(-1);
+  chips.appendChild(addChip);
+
+  // cart — grouped by category
+  const wrap = $("cart");
+  wrap.innerHTML = "";
+  if(cart.length === 0){
+    wrap.innerHTML = `<div class="empty">Nothing here yet.<br>Tap a saved item or add one below as you drop it in the cart.</div>`;
+    updateTotals();
+    persist();
+    return;
+  }
+
+  // group indices by category, preserving CATEGORIES order
+  const groups = {};
+  cart.forEach((it,idx)=>{ (groups[it.cat] ||= []).push(idx); });
+  const orderedCats = CATEGORIES.filter(c=>groups[c]);
+
+  orderedCats.forEach(cat=>{
+    const idxs = groups[cat];
+    let catTotal = 0, catCount = 0;
+    idxs.forEach(i=>{ catTotal += cart[i].price*cart[i].qty; catCount += cart[i].qty; });
+
+    const head = document.createElement("div");
+    head.className = "cat-head";
+    head.innerHTML = `
+      <button class="cat-toggle" data-cat="${esc(cat)}">
+        <span class="caret">▾</span>
+        <span class="cat-name">${esc(cat)}</span>
+        <span class="cat-pill">${catCount}</span>
+      </button>
+      <span class="cat-sub">${money(catTotal)}</span>`;
+    wrap.appendChild(head);
+
+    const groupBox = document.createElement("div");
+    groupBox.className = "cat-items";
+    if(collapsed.has(cat)){ groupBox.style.display="none"; head.querySelector(".caret").textContent="▸"; }
+
+    idxs.forEach(i=>{
+      const it = cart[i];
+      const lineTotal = it.price * it.qty;
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <button class="qbtn" data-act="dec">−</button>
+        <span class="qty">${it.qty}</span>
+        <button class="qbtn" data-act="inc">+</button>
+        <div class="body">
+          <div class="nm">${esc(it.name)}</div>
+          <div class="det">${money(it.price)} each${it.tax?" · taxable":""} · <button class="recat" data-act="cat">${esc(it.cat)}</button></div>
+        </div>
+        <div style="text-align:right">
+          <div class="line">${money(lineTotal)}</div>
+          <button class="del" data-act="del">remove</button>
+        </div>`;
+      el.querySelector('[data-act="dec"]').onclick = ()=>{ it.qty--; if(it.qty<=0) cart.splice(i,1); render(); };
+      el.querySelector('[data-act="inc"]').onclick = ()=>{ it.qty++; render(); };
+      el.querySelector('[data-act="del"]').onclick = ()=>{ cart.splice(i,1); render(); };
+      el.querySelector('[data-act="cat"]').onclick = ()=> openRecat(i);
+      groupBox.appendChild(el);
+    });
+    wrap.appendChild(groupBox);
+
+    head.querySelector(".cat-toggle").onclick = ()=>{
+      if(collapsed.has(cat)) collapsed.delete(cat); else collapsed.add(cat);
+      render();
+    };
+  });
+
+  updateTotals();
+  persist();
+}
+
+function updateTotals(){
+  let sub = 0, taxable = 0, count = 0;
+  cart.forEach(it=>{ const lt = it.price*it.qty; sub += lt; if(it.tax) taxable += lt; count += it.qty; });
+  const tax = taxable * (taxRate/100);
+  const grand = sub + tax;
+
+  $("grandTotal").textContent = grand.toFixed(2);
+  $("itemCount").textContent = count;
+  $("subtotal").textContent = money(sub);
+  $("taxAmt").textContent = money(tax);
+
+  // show cart action buttons only when there are items
+  const ca = $("cartActions");
+  if(ca) ca.style.display = cart.length ? "flex" : "none";
+
+  // budget
+  if(budget && budget > 0){
+    $("budgetWrap").style.display = "block";
+    const pct = (grand/budget)*100;
+    const left = budget - grand;
+    const over = left < 0;
+
+    $("budgetVal").textContent = money(budget);
+    $("spentVal").textContent = money(grand);
+
+    // segmented gauge (12 segments)
+    const SEGS = 12;
+    const gauge = $("gauge");
+    if(gauge.children.length !== SEGS){
+      gauge.innerHTML = "";
+      for(let s=0;s<SEGS;s++){ const d=document.createElement("div"); d.className="seg"; gauge.appendChild(d); }
+    }
+    const lit = Math.round(Math.min(100,pct)/100 * SEGS);
+    [...gauge.children].forEach((seg,idx)=> seg.classList.toggle("on", idx < lit));
+    gauge.classList.toggle("warn", pct >= 80 && !over);
+    gauge.classList.toggle("over", over);
+
+    // remaining vs over
+    const remEl = $("remVal");
+    if(over){
+      remEl.textContent = money(0);
+      $("budgetOver").classList.add("on");
+      $("overTxt").textContent = "Over by " + money(-left);
+    } else {
+      remEl.textContent = money(left);
+      remEl.classList.toggle("warn", pct >= 80);
+      $("budgetOver").classList.remove("on");
+    }
+  } else {
+    $("budgetWrap").style.display = "none";
+  }
+}
+
+/* ---------- Pro / upgrade ---------- */
+// 🔧 PASTE YOUR STRIPE PAYMENT LINK BETWEEN THE QUOTES BELOW.
+// Create one at dashboard.stripe.com → Payment Links → recurring $2.99/mo.
+// IMPORTANT: a real "Pro unlocked" check needs a backend (Stripe webhook →
+// your server/Supabase → verify on load). The flag below is client-side only.
+const STRIPE_PAYMENT_LINK = "";
+
+const PRO_FEATURES = [
+  {key:"lists", title:"Saved lists", icon:"💾", desc:"Save & reload named carts",
+   teaser:`<div class="ts-line"><span class="ts-bar w70"></span></div><div class="ts-line"><span class="ts-bar w50"></span></div><div class="ts-cap">Weekly · Costco · Party</div>`},
+  {key:"history", title:"Trip history", icon:"🧾", desc:"Every shop, saved",
+   teaser:`<div class="ts-cap" style="margin-top:0">Jun 24 — $84.20</div><div class="ts-cap">Jun 17 — $71.05</div><div class="ts-cap">Jun 10 — $92.80</div>`},
+  {key:"analytics", title:"Spending analytics", icon:"📊", desc:"Charts & trends",
+   teaser:`<div class="ts-bars"><span style="height:40%"></span><span style="height:65%"></span><span style="height:50%"></span><span style="height:85%"></span><span style="height:70%"></span><span style="height:95%"></span></div><div class="ts-cap">By category, 6-week view</div>`},
+  {key:"prices", title:"Price history", icon:"📈", desc:"Track item prices over time",
+   teaser:`<svg viewBox="0 0 120 48" preserveAspectRatio="none" class="ts-spark"><polyline points="0,34 20,30 40,36 60,22 80,26 100,14 120,18" fill="none" stroke="var(--accent)" stroke-width="2.5"/></svg><div class="ts-cap">Milk · ↓ 8% this month</div>`},
+];
+
+function openPro(){ $("proModal").classList.add("on"); }
+
+function renderProSection(){
+  const grid = $("proGrid");
+  grid.innerHTML = "";
+  PRO_FEATURES.forEach(f=>{
+    const card = document.createElement("button");
+    card.className = "pro-card" + (isPro ? " unlocked" : "");
+    card.innerHTML = `
+      <div class="pro-lock">${isPro ? "✓" : "🔒"}</div>
+      <div class="pro-badge ${isPro?"live":""}">${isPro ? "Pro · Active" : "Pro · Tap to preview"}</div>
+      <div class="pro-title">${f.icon} ${f.title}</div>
+      <div class="pro-teaser">${f.teaser}</div>
+      ${isPro ? `<div class="pro-open-hint">Open →</div>` : ""}`;
+    card.onclick = ()=>{
+      if(!isPro){ openPro(); return; }
+      if(f.key === "lists") openLists();
+      else openHistory();   // history, analytics, prices all live in the history modal
+    };
+    grid.appendChild(card);
+  });
+
+  // header + CTA reflect state
+  $("proHeading").innerHTML = isPro ? "⭐ Cart Tally Pro · Active" : "⭐ Cart Tally Pro";
+  $("proCtaWide").style.display = isPro ? "none" : "block";
+
+  // cart action buttons: mark pro-enabled
+  $("saveCartBtn").classList.toggle("is-pro", isPro);
+  $("finishTripBtn").classList.toggle("is-pro", isPro);
+}
+
+$("proCtaWide").onclick = openPro;
+$("proCancel").onclick = ()=> $("proModal").classList.remove("on");
+$("proModal").addEventListener("click",e=>{ if(e.target.id==="proModal") $("proModal").classList.remove("on"); });
+
+$("upgradeBtn").onclick = ()=>{
+  if(STRIPE_PAYMENT_LINK){
+    window.location.href = STRIPE_PAYMENT_LINK;
+  } else {
+    alert("Stripe checkout isn't connected yet.\n\nAdd your $2.99/mo Payment Link to STRIPE_PAYMENT_LINK in the code, plus a backend to verify the subscription, to go live.\n\nFor now, use \u201cUnlock for testing\u201d to try the Pro features.");
+  }
+};
+$("testUnlockBtn").onclick = ()=>{
+  isPro = !isPro;
+  $("testUnlockBtn").textContent = isPro ? "🔒 Lock again (dev)" : "🔓 Unlock for testing (dev)";
+  $("proModal").classList.remove("on");
+  renderProSection();
+  persist();
+};
+
+/* ---------- Saved lists ---------- */
+function openLists(){
+  const body = $("listsBody");
+  body.innerHTML = "";
+  if(savedCarts.length === 0){
+    body.innerHTML = `<div class="pro-empty">No saved lists yet.<br>Build a cart, then tap "Save current cart as a list."</div>`;
+  } else {
+    savedCarts.slice().reverse().forEach(list=>{
+      const total = list.items.reduce((s,it)=>s+it.price*it.qty,0);
+      const row = document.createElement("div");
+      row.className = "list-row";
+      row.innerHTML = `
+        <div class="lr-meta">
+          <div class="lr-name">${esc(list.name)}</div>
+          <div class="lr-sub">${list.items.length} item${list.items.length!==1?"s":""} · ${money(total)}</div>
+        </div>
+        <div class="lr-acts">
+          <button class="lr-load">Load</button>
+          <button class="lr-del">Delete</button>
+        </div>`;
+      row.querySelector(".lr-load").onclick = ()=>{
+        if(cart.length && !confirm("Replace your current cart with this list?")) return;
+        cart = list.items.map(it=>({...it}));
+        $("listsModal").classList.remove("on");
+        render(); renderProSection();
+      };
+      row.querySelector(".lr-del").onclick = ()=>{
+        if(!confirm(`Delete "${list.name}"?`)) return;
+        savedCarts = savedCarts.filter(l=>l.id!==list.id);
+        persist(); openLists();
+      };
+      body.appendChild(row);
+    });
+  }
+  $("listsModal").classList.add("on");
+}
+$("listsClose").onclick = ()=> $("listsModal").classList.remove("on");
+$("listsModal").addEventListener("click",e=>{ if(e.target.id==="listsModal") $("listsModal").classList.remove("on"); });
+$("saveCurrentAsList").onclick = ()=>{
+  if(cart.length === 0){ alert("Your cart is empty."); return; }
+  $("listsModal").classList.remove("on");
+  promptName("Name this list","List name","e.g. Weekly groceries",(name)=>{
+    savedCarts.push({id:Date.now(), name, items:cart.map(it=>({...it})), ts:Date.now()});
+    persist(); openLists();
+  });
+};
+
+/* cart action buttons */
+$("saveCartBtn").onclick = ()=>{
+  if(!isPro){ openPro(); return; }
+  if(cart.length === 0){ alert("Add items first."); return; }
+  promptName("Save as list","List name","e.g. Weekly groceries",(name)=>{
+    savedCarts.push({id:Date.now(), name, items:cart.map(it=>({...it})), ts:Date.now()});
+    persist();
+    alert(`Saved "${name}".`);
+  });
+};
+$("finishTripBtn").onclick = ()=>{
+  if(!isPro){ openPro(); return; }
+  if(cart.length === 0){ alert("Add items first."); return; }
+  promptName("Finish trip","Trip name (optional)","e.g. Safeway run",(name)=>{
+    let sub=0, taxable=0, count=0; const cats={}; const items=[];
+    cart.forEach(it=>{ const lt=it.price*it.qty; sub+=lt; if(it.tax) taxable+=lt; count+=it.qty;
+      cats[it.cat]=(cats[it.cat]||0)+lt; items.push({name:it.name,price:it.price,qty:it.qty,cat:it.cat}); });
+    const tax=taxable*(taxRate/100);
+    trips.push({id:Date.now(), name:name||"Trip", ts:Date.now(), total:sub+tax, sub, tax, count, cats, items});
+    cart = [];
+    persist(); render(); renderProSection();
+    openHistory();
+  });
+};
+
+/* ---------- name prompt ---------- */
+let nameCb = null;
+function promptName(title,label,placeholder,cb){
+  $("nameTitle").textContent = title;
+  $("nameLabel").textContent = label;
+  $("nameInput").placeholder = placeholder;
+  $("nameInput").value = "";
+  nameCb = cb;
+  $("nameModal").classList.add("on");
+  setTimeout(()=>$("nameInput").focus(),50);
+}
+$("nameCancel").onclick = ()=> $("nameModal").classList.remove("on");
+$("nameSave").onclick = ()=>{
+  const v = $("nameInput").value.trim();
+  const cb = nameCb;
+  $("nameModal").classList.remove("on");
+  if(cb) cb(v || $("nameInput").placeholder.replace(/^e\.g\.\s*/,""));
+};
+$("nameInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("nameSave").click(); });
+$("nameModal").addEventListener("click",e=>{ if(e.target.id==="nameModal") $("nameModal").classList.remove("on"); });
+
+/* ---------- Trip history + analytics ---------- */
+function openHistory(){
+  const body = $("historyBody");
+  body.innerHTML = "";
+  if(trips.length === 0){
+    body.innerHTML = `<div class="pro-empty">No trips yet.<br>Finish a shopping trip to start building history, spend charts, and price tracking.</div>`;
+    $("historyModal").classList.add("on");
+    return;
+  }
+
+  // summary stats
+  const totals = trips.map(t=>t.total);
+  const sum = totals.reduce((a,b)=>a+b,0);
+  const avg = sum/trips.length;
+  body.innerHTML += `
+    <div class="stat-row">
+      <div class="stat"><div class="sk">Trips</div><div class="sv">${trips.length}</div></div>
+      <div class="stat"><div class="sk">Avg trip</div><div class="sv">${money(avg)}</div></div>
+      <div class="stat"><div class="sk">Total spent</div><div class="sv">${money(sum)}</div></div>
+    </div>`;
+
+  // bar chart: last up-to-8 trips
+  const recent = trips.slice(-8);
+  const max = Math.max(...recent.map(t=>t.total),1);
+  let bars = "";
+  recent.forEach(t=>{
+    const h = Math.round((t.total/max)*100);
+    const d = new Date(t.ts);
+    const lbl = (d.getMonth()+1)+"/"+d.getDate();
+    bars += `<div class="bc-col"><div class="bc-v">${"$"+Math.round(t.total)}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${lbl}</div></div>`;
+  });
+  body.innerHTML += `<div class="chart-lbl">Spend per trip</div><div class="bchart">${bars}</div>`;
+
+  // category breakdown across all trips
+  const catTotals = {};
+  trips.forEach(t=> Object.entries(t.cats||{}).forEach(([c,v])=> catTotals[c]=(catTotals[c]||0)+v));
+  const catArr = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const catMax = Math.max(...catArr.map(c=>c[1]),1);
+  let cbars = "";
+  catArr.forEach(([c,v])=>{
+    cbars += `<div class="catbar"><div class="cb-top"><span class="cb-name">${esc(c)}</span><span class="cb-amt">${money(v)}</span></div><div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`;
+  });
+  body.innerHTML += `<div class="chart-lbl">Top categories (all trips)</div>${cbars}`;
+
+  // price history: pick the item with the most price points
+  const itemPrices = {};
+  trips.forEach(t=> (t.items||[]).forEach(it=>{
+    const k = it.name.toLowerCase();
+    (itemPrices[k] ||= {name:it.name, pts:[]}).pts.push({ts:t.ts, price:it.price});
+  }));
+  const tracked = Object.values(itemPrices).filter(o=>o.pts.length>=2).sort((a,b)=>b.pts.length-a.pts.length)[0];
+  if(tracked){
+    const first = tracked.pts[0].price, last = tracked.pts[tracked.pts.length-1].price;
+    const chg = first ? Math.round(((last-first)/first)*100) : 0;
+    const arrow = chg>0?"↑":chg<0?"↓":"→";
+    body.innerHTML += `<div class="chart-lbl">Price history · ${esc(tracked.name)}</div>
+      <div class="trip-row"><span class="tr-d">${tracked.pts.length} price points</span>
+      <span class="tr-t">${money(last)} <span style="color:var(--muted);font-weight:600">(${arrow}${Math.abs(chg)}%)</span></span></div>`;
+  }
+
+  // recent trips list
+  body.innerHTML += `<div class="chart-lbl">Recent trips</div>`;
+  trips.slice().reverse().slice(0,10).forEach(t=>{
+    const d = new Date(t.ts);
+    body.innerHTML += `<div class="trip-row"><span class="tr-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="tr-t">${money(t.total)}</span></div>`;
+  });
+
+  $("historyModal").classList.add("on");
+}
+$("historyClose").onclick = ()=> $("historyModal").classList.remove("on");
+$("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") $("historyModal").classList.remove("on"); });
+
+/* ---------- receipt / print ---------- */
+function buildReceipt(){
+  // recompute totals
+  let sub=0, taxable=0, count=0;
+  cart.forEach(it=>{ const lt=it.price*it.qty; sub+=lt; if(it.tax) taxable+=lt; count+=it.qty; });
+  const tax = taxable*(taxRate/100);
+  const grand = sub+tax;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+  const timeStr = now.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+
+  // group by category in store order
+  const groups = {};
+  cart.forEach(it=>{ (groups[it.cat] ||= []).push(it); });
+  const orderedCats = CATEGORIES.filter(c=>groups[c]);
+
+  let body = "";
+  orderedCats.forEach(cat=>{
+    body += `<div class="r-cat">${esc(cat)}</div>`;
+    groups[cat].forEach(it=>{
+      const lt = it.price*it.qty;
+      body += `<div class="r-line"><span class="r-name">${esc(it.name)}${it.tax?" T":""}</span><span class="r-amt">${money(lt)}</span></div>`;
+      if(it.qty>1) body += `<div class="r-qty">${it.qty} @ ${money(it.price)}</div>`;
+    });
+  });
+
+  const budgetLine = (budget && budget>0)
+    ? `<hr class="r-rule"><div class="r-tot"><span>Budget</span><span>${money(budget)}</span></div>`
+      + `<div class="r-tot"><span>${grand>budget?"Over by":"Remaining"}</span><span>${money(Math.abs(budget-grand))}</span></div>`
+    : "";
+
+  $("receipt").innerHTML = `
+    <div class="r-center">
+      <div class="r-store">CART TALLY</div>
+      <div class="r-sub">Your Grocery Run</div>
+      <div class="r-sub">${dateStr} · ${timeStr}</div>
+    </div>
+    <hr class="r-rule">
+    ${body}
+    <hr class="r-rule">
+    <div class="r-tot"><span>Subtotal</span><span>${money(sub)}</span></div>
+    <div class="r-tot"><span>Tax${taxRate?` (${taxRate}%)`:""}</span><span>${money(tax)}</span></div>
+    <hr class="r-rule-solid">
+    <div class="r-tot big"><span>TOTAL</span><span>${money(grand)}</span></div>
+    <div class="r-sub" style="margin-top:4px">Items: ${count}</div>
+    ${budgetLine}
+    <div class="r-barcode"></div>
+    <div class="r-foot">
+      ${taxRate?'T = taxable item<br>':''}
+      Thank you for shopping!<br>Tracked with Cart Tally
+    </div>`;
+}
+
+$("printBtn").onclick = ()=>{
+  if(cart.length === 0){ alert("Your cart is empty — add some items first."); return; }
+  buildReceipt();
+  window.print();
+};
+
+/* ---------- recategorize a cart item ---------- */
+function openRecat(i){
+  recatIndex = i;
+  const sel = $("recatSelect");
+  sel.innerHTML = "";
+  CATEGORIES.forEach(c=>{
+    const o = document.createElement("option");
+    o.value = c; o.textContent = c;
+    if(c === cart[i].cat) o.selected = true;
+    sel.appendChild(o);
+  });
+  $("recatTitle").textContent = "Move “" + cart[i].name + "”";
+  $("recatModal").classList.add("on");
+}
+$("rcCancel").onclick = ()=> $("recatModal").classList.remove("on");
+$("rcSave").onclick = ()=>{
+  if(recatIndex > -1) cart[recatIndex].cat = $("recatSelect").value;
+  $("recatModal").classList.remove("on");
+  render();
+};
+$("recatModal").addEventListener("click",e=>{ if(e.target.id==="recatModal") $("recatModal").classList.remove("on"); });
+
+/* ---------- actions ---------- */
+function addToCart(name, price, tax, cat){
+  const ex = cart.find(c=>c.name.toLowerCase()===name.toLowerCase() && c.price===price);
+  if(ex){ ex.qty++; } else { cart.push({name,price,qty:1,tax:!!tax,cat: cat || classify(name)}); }
+  render();
+}
+
+$("addBtn").onclick = ()=>{
+  const name = $("addName").value.trim();
+  const price = parseFloat($("addPrice").value);
+  if(!name || isNaN(price)) return;
+  addToCart(name, price, taxRate>0);  // default taxable if a tax rate is set
+  $("addName").value = ""; $("addPrice").value = "";
+  $("addName").focus();
+};
+$("addPrice").addEventListener("keydown",e=>{ if(e.key==="Enter") $("addBtn").click(); });
+
+/* ---------- edit/save saved item ---------- */
+function openEdit(i){
+  editIndex = i;
+  if(i === -1){
+    $("modalTitle").textContent = "Save a new item";
+    $("mName").value = $("addName").value.trim();
+    $("mPrice").value = $("addPrice").value;
+    $("mTax").value = "no";
+    $("mRemove").style.display = "none";
+  } else {
+    const s = saved[i];
+    $("modalTitle").textContent = "Edit saved item";
+    $("mName").value = s.name; $("mPrice").value = s.price; $("mTax").value = s.tax?"yes":"no";
+    $("mRemove").style.display = "block";
+  }
+  $("itemModal").classList.add("on");
+}
+$("mCancel").onclick = ()=> $("itemModal").classList.remove("on");
+$("mSave").onclick = ()=>{
+  const name = $("mName").value.trim();
+  const price = parseFloat($("mPrice").value);
+  if(!name || isNaN(price)) return;
+  const rec = {name, price, tax:$("mTax").value==="yes"};
+  if(editIndex === -1) saved.push(rec); else saved[editIndex] = rec;
+  $("itemModal").classList.remove("on");
+  render();
+};
+$("mRemove").onclick = ()=>{
+  if(editIndex>-1) saved.splice(editIndex,1);
+  $("itemModal").classList.remove("on");
+  render();
+};
+
+/* ---------- settings ---------- */
+$("settingsBtn").onclick = ()=>{
+  $("sBudget").value = budget ?? "";
+  $("sTax").value = taxRate || "";
+  $("setModal").classList.add("on");
+};
+$("sCancel").onclick = ()=> $("setModal").classList.remove("on");
+$("sSave").onclick = ()=>{
+  const b = parseFloat($("sBudget").value);
+  const t = parseFloat($("sTax").value);
+  budget = isNaN(b) ? null : b;
+  taxRate = isNaN(t) ? 0 : t;
+  $("setModal").classList.remove("on");
+  render();
+};
+
+/* close modal on backdrop tap */
+[["itemModal"],["setModal"]].forEach(([id])=>{
+  $(id).addEventListener("click",e=>{ if(e.target.id===id) $(id).classList.remove("on"); });
+});
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- init ---------- */
+loadState();
+if(isPro) $("testUnlockBtn").textContent = "🔒 Lock again (dev)";
+renderProSection();
+render();
+</script>
+</body>
+</html>
