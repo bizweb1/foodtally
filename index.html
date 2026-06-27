@@ -343,6 +343,31 @@
   .trip-row.tappable:active{background:var(--panel-2)}
   .tr-edit{color:var(--muted);font-size:16px}
   .te-summary{font-size:13px;color:var(--muted);margin-bottom:14px;font-variant-numeric:tabular-nums}
+
+  /* monthly report */
+  .report-modal{max-height:90vh}
+  .report-toolbar{display:flex;gap:9px;margin-bottom:14px;position:sticky;top:0}
+  .report-toolbar select{flex:1}
+  .report-print{background:var(--accent);color:#0e160a;border:none;border-radius:11px;padding:0 16px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;flex:none}
+  .report-print:active{background:var(--accent-deep)}
+  .rp-head{text-align:center;margin-bottom:16px}
+  .rp-title{font-size:18px;font-weight:800}
+  .rp-month{font-size:13px;color:var(--muted);margin-top:2px}
+  .rp-bigstat{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;margin-bottom:18px}
+  .rp-bs-k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .rp-bs-v{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:4px 0}
+  .rp-bs-sub{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .rp-sec-title{font-size:14px;font-weight:800;margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .rp-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .rp-stat{flex:1;min-width:72px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+  .rp-sk{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .rp-sv{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+  .rp-mom{font-size:10px;font-weight:700;display:block;margin-top:2px}
+  .rp-chart-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:14px 0 8px}
+  .rp-row{display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px}
+  .rp-amt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .rp-empty{color:var(--muted);font-size:13px;padding:8px 2px}
+  .rp-foot{text-align:center;font-size:11px;color:var(--muted);margin-top:20px}
   .pro-empty{color:var(--muted);text-align:center;padding:22px 8px;font-size:13.5px;line-height:1.5}
 
   /* analytics */
@@ -386,6 +411,7 @@
 
   /* ===== Receipt (hidden on screen, shown only when printing) ===== */
   #receipt{display:none}
+  #reportPrintArea{display:none}
   @media print{
     /* hide the whole app */
     body > .wrap, .addbar, .modal-bg{display:none !important}
@@ -413,6 +439,16 @@
       margin:10px auto 4px;height:42px;width:200px;
       background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 4px,#000 4px,#000 5px,#fff 5px,#fff 9px);
     }
+    /* monthly report print */
+    #reportPrintArea{display:block;color:#000;max-width:680px;margin:0 auto;font-size:12px}
+    #reportPrintArea .bc-bar{background:#222 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .cb-fill{background:#444 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .cb-track{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .rp-bigstat{border:1px solid #000;background:#f5f5f5 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .rp-sec-title{border-bottom:2px solid #000;color:#000}
+    #reportPrintArea .rp-stat{border:1px solid #999}
+    #reportPrintArea .bc-v,#reportPrintArea .bc-x,#reportPrintArea .rp-sk,#reportPrintArea .rp-foot,#reportPrintArea .cb-amt{color:#444}
+    #reportPrintArea .rp-row{border-bottom:1px solid #ccc}
     @page{margin:8mm}
   }
 </style>
@@ -487,6 +523,7 @@
 
 <!-- Receipt (print only) -->
 <div id="receipt" aria-hidden="true"></div>
+<div id="reportPrintArea" aria-hidden="true"></div>
 
 <!-- Upgrade modal -->
 <div class="modal-bg" id="proModal">
@@ -668,6 +705,18 @@
       <button class="b-remove" id="teDelete">Delete</button>
       <button class="b-save" id="teSave">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- Monthly report modal -->
+<div class="modal-bg" id="reportModal">
+  <div class="modal pro-modal report-modal">
+    <div class="report-toolbar">
+      <select id="reportMonth"></select>
+      <button class="report-print" id="reportPrint">🖨 Print / PDF</button>
+    </div>
+    <div id="reportBody"></div>
+    <button class="b-cancel plan-close" id="reportClose">Close</button>
   </div>
 </div>
 
@@ -1059,6 +1108,8 @@ const PRO_FEATURES = [
    teaser:`<svg viewBox="0 0 120 48" preserveAspectRatio="none" class="ts-spark"><polyline points="0,34 20,30 40,36 60,22 80,26 100,14 120,18" fill="none" stroke="var(--accent)" stroke-width="2.5"/></svg><div class="ts-cap">Milk · ↓ 8% this month</div>`},
   {key:"fuel", title:"Fuel log", icon:"⛽", desc:"Track gas, price/gal & MPG",
    teaser:`<div class="ts-line"><span class="ts-bar w60"></span><span class="ts-amt">28 MPG</span></div><div class="ts-line"><span class="ts-bar w70"></span><span class="ts-amt">$3.89/gal</span></div><div class="ts-cap">Fill-ups, MPG, price trend</div>`},
+  {key:"report", title:"Monthly report", icon:"📑", desc:"Full report, charts, printable",
+   teaser:`<div class="ts-bars"><span style="height:55%"></span><span style="height:80%"></span><span style="height:45%"></span><span style="height:90%"></span></div><div class="ts-cap">Pick a month → print or save PDF</div>`},
 ];
 
 function openPro(){ $("proModal").classList.add("on"); }
@@ -1080,6 +1131,7 @@ function renderProSection(){
       if(f.key === "scan") openScanner();
       else if(f.key === "lists") openLists();
       else if(f.key === "fuel") openFuel();
+      else if(f.key === "report") openReport();
       else openHistory();   // history, analytics, prices all live in the history modal
     };
     grid.appendChild(card);
@@ -1317,6 +1369,159 @@ $("teSave").onclick = ()=>{
   $("tripEditModal").classList.remove("on");
   persist(); openHistory();
 };
+
+/* ---------- Monthly report ---------- */
+function monthKey(ts){ const d=new Date(ts); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function monthLabel(key){ const [y,m]=key.split("-"); return new Date(y,m-1,1).toLocaleDateString(undefined,{month:"long",year:"numeric"}); }
+
+function openReport(){
+  // build month list from all data (trips + fuel), newest first
+  const keys = new Set();
+  trips.forEach(t=> keys.add(monthKey(t.ts)));
+  fuelLog.forEach(f=> keys.add(monthKey(f.ts)));
+  const sorted = [...keys].sort().reverse();
+  const sel = $("reportMonth");
+  sel.innerHTML = "";
+  if(sorted.length === 0){
+    sel.innerHTML = `<option>No data yet</option>`;
+    $("reportBody").innerHTML = `<div class="scan-none">No trips or fuel logged yet.<br>Finish a shopping trip or add a fill-up, then come back for your monthly report.</div>`;
+    $("reportModal").classList.add("on");
+    return;
+  }
+  sorted.forEach(k=>{
+    const o=document.createElement("option"); o.value=k; o.textContent=monthLabel(k); sel.appendChild(o);
+  });
+  sel.value = sorted[0];
+  sel.onchange = ()=> renderReport(sel.value);
+  renderReport(sorted[0]);
+  $("reportModal").classList.add("on");
+}
+$("reportClose").onclick = ()=> $("reportModal").classList.remove("on");
+$("reportModal").addEventListener("click",e=>{ if(e.target.id==="reportModal") $("reportModal").classList.remove("on"); });
+$("reportPrint").onclick = ()=>{
+  const html = $("reportBody").innerHTML;
+  $("reportPrintArea").innerHTML = html;
+  window.print();
+};
+
+function prevMonthKey(key){
+  const [y,m]=key.split("-").map(Number);
+  const d=new Date(y, m-2, 1);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
+function renderReport(key){
+  const mTrips = trips.filter(t=> monthKey(t.ts)===key);
+  const mFuel  = fuelLog.filter(f=> monthKey(f.ts)===key);
+  const prevKey = prevMonthKey(key);
+  const pTrips = trips.filter(t=> monthKey(t.ts)===prevKey);
+
+  // ---- grocery summary ----
+  const gTotal = mTrips.reduce((s,t)=>s+t.total,0);
+  const gPrev  = pTrips.reduce((s,t)=>s+t.total,0);
+  const gAvg   = mTrips.length ? gTotal/mTrips.length : 0;
+  let momHtml = "";
+  if(pTrips.length){
+    const chg = gPrev ? ((gTotal-gPrev)/gPrev)*100 : 0;
+    const up = chg>0;
+    momHtml = `<span class="rp-mom" style="color:${up?'var(--over)':'var(--accent-deep)'}">${up?'▲':'▼'} ${Math.abs(chg).toFixed(0)}% vs ${monthLabel(prevKey)}</span>`;
+  }
+
+  // category totals
+  const cats = {};
+  mTrips.forEach(t=> Object.entries(t.cats||{}).forEach(([c,v])=> cats[c]=(cats[c]||0)+v));
+  const catArr = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const catMax = Math.max(...catArr.map(c=>c[1]),1);
+  const catBars = catArr.map(([c,v])=>`
+    <div class="catbar"><div class="cb-top"><span class="cb-name">${esc(c)}</span><span class="cb-amt">${money(v)} · ${Math.round(v/gTotal*100)}%</span></div>
+    <div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`).join("");
+
+  // per-trip bar chart
+  const tripsSorted = mTrips.slice().sort((a,b)=>a.ts-b.ts);
+  const tMax = Math.max(...tripsSorted.map(t=>t.total),1);
+  const tripBars = tripsSorted.map(t=>{
+    const d=new Date(t.ts); const h=Math.round(t.total/tMax*100);
+    return `<div class="bc-col"><div class="bc-v">$${Math.round(t.total)}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${d.getMonth()+1}/${d.getDate()}</div></div>`;
+  }).join("");
+
+  // trip list
+  const tripList = tripsSorted.slice().reverse().map(t=>{
+    const d=new Date(t.ts);
+    return `<div class="rp-row"><span>${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="rp-amt">${money(t.total)}</span></div>`;
+  }).join("");
+
+  // ---- fuel summary ----
+  const fTotal = mFuel.reduce((s,f)=>s+f.total,0);
+  const fGal = mFuel.reduce((s,f)=>s+(f.gallons||0),0);
+  const ppgVals = mFuel.filter(f=>f.ppg).map(f=>f.ppg);
+  const avgPpg = ppgVals.length ? ppgVals.reduce((a,b)=>a+b,0)/ppgVals.length : null;
+  // mpg needs odometer pairs across ALL fuel (use chronological global list, count those in this month)
+  const allFuel = fuelLog.slice().sort((a,b)=>a.ts-b.ts);
+  const mpgThisMonth = [];
+  allFuel.forEach((f,i)=>{
+    if(i>0 && f.odometer!=null && allFuel[i-1].odometer!=null && f.gallons && monthKey(f.ts)===key){
+      const miles=f.odometer-allFuel[i-1].odometer;
+      if(miles>0) mpgThisMonth.push(miles/f.gallons);
+    }
+  });
+  const avgMpg = mpgThisMonth.length ? mpgThisMonth.reduce((a,b)=>a+b,0)/mpgThisMonth.length : null;
+  const fuelSorted = mFuel.slice().sort((a,b)=>a.ts-b.ts);
+  const fuelList = fuelSorted.slice().reverse().map(f=>{
+    const d=new Date(f.ts); const bits=[];
+    if(f.gallons) bits.push(f.gallons.toFixed(2)+" gal");
+    if(f.ppg) bits.push("$"+f.ppg.toFixed(2)+"/gal");
+    return `<div class="rp-row"><span>${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${bits.join(" · ")||"—"}</span><span class="rp-amt">${money(f.total)}</span></div>`;
+  }).join("");
+
+  const grand = gTotal + fTotal;
+
+  // ---- assemble ----
+  let html = `
+    <div class="rp-doc">
+      <div class="rp-head">
+        <div class="rp-title">Monthly Spending Report</div>
+        <div class="rp-month">${monthLabel(key)}</div>
+      </div>
+
+      <div class="rp-bigstat">
+        <div class="rp-bs-k">Total spent this month</div>
+        <div class="rp-bs-v">${money(grand)}</div>
+        <div class="rp-bs-sub">Groceries ${money(gTotal)} · Fuel ${money(fTotal)}</div>
+      </div>`;
+
+  // GROCERIES section
+  html += `<div class="rp-sec-title">🛒 Groceries</div>`;
+  if(mTrips.length === 0){
+    html += `<div class="rp-empty">No grocery trips this month.</div>`;
+  } else {
+    html += `<div class="rp-stats">
+        <div class="rp-stat"><div class="rp-sk">Spent</div><div class="rp-sv">${money(gTotal)}</div>${momHtml}</div>
+        <div class="rp-stat"><div class="rp-sk">Trips</div><div class="rp-sv">${mTrips.length}</div></div>
+        <div class="rp-stat"><div class="rp-sk">Avg trip</div><div class="rp-sv">${money(gAvg)}</div></div>
+      </div>
+      <div class="rp-chart-lbl">Spending by category</div>${catBars}
+      <div class="rp-chart-lbl">Spend per trip</div><div class="bchart">${tripBars}</div>
+      <div class="rp-chart-lbl">All trips</div>${tripList}`;
+  }
+
+  // FUEL section
+  html += `<div class="rp-sec-title">⛽ Fuel</div>`;
+  if(mFuel.length === 0){
+    html += `<div class="rp-empty">No fuel logged this month.</div>`;
+  } else {
+    html += `<div class="rp-stats">
+        <div class="rp-stat"><div class="rp-sk">Spent</div><div class="rp-sv">${money(fTotal)}</div></div>
+        <div class="rp-stat"><div class="rp-sk">Gallons</div><div class="rp-sv">${fGal.toFixed(1)}</div></div>
+        ${avgMpg?`<div class="rp-stat"><div class="rp-sk">Avg MPG</div><div class="rp-sv">${avgMpg.toFixed(1)}</div></div>`:``}
+        ${avgPpg?`<div class="rp-stat"><div class="rp-sk">Avg $/gal</div><div class="rp-sv">$${avgPpg.toFixed(2)}</div></div>`:``}
+      </div>
+      <div class="rp-chart-lbl">Fill-ups</div>${fuelList}`;
+  }
+
+  html += `<div class="rp-foot">Generated by Cart Tally · ${new Date().toLocaleDateString()}</div></div>`;
+
+  $("reportBody").innerHTML = html;
+}
 
 /* ---------- Receipt scanner (Tesseract.js OCR) ---------- */
 let scanItems = [];   // [{name, price}]
