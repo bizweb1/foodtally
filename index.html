@@ -104,6 +104,12 @@
   .chip .p{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:700}
   .chip.add{border-style:dashed;color:var(--muted)}
   .chip .edit{color:var(--muted);font-size:12px}
+  .chip-edit{
+    color:var(--muted);font-size:13px;margin-left:2px;padding:2px 4px;
+    border-left:1px solid var(--line);line-height:1;align-self:stretch;
+    display:flex;align-items:center;border-radius:0 999px 999px 0;
+  }
+  .chip-edit:active{color:var(--accent);background:var(--panel-2)}
 
   /* cart list */
   /* category grouping */
@@ -289,6 +295,9 @@
   .fuel-fill .ff-t{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
   .fuel-fill .ff-mpg{color:var(--accent-deep);font-weight:700;font-size:11.5px}
   .fuel-fill .ff-del{background:none;border:none;color:var(--over);font-size:16px;cursor:pointer;flex:none;padding:2px 4px}
+  .fuel-fill.tappable{cursor:pointer}
+  .fuel-fill.tappable:active{background:var(--panel-2)}
+  .fuel-fill .ff-edit{color:var(--muted);font-size:22px;flex:none;padding:0 4px;line-height:1}
   .fuel-chart-head{display:flex;justify-content:space-between;align-items:baseline;margin:4px 0 6px}
   .fch-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
   .fch-chg{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -328,6 +337,12 @@
   .list-row .lr-acts{display:flex;gap:6px;flex:none}
   .lr-load{background:var(--accent);color:#0e160a;border:none;border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer}
   .lr-del{background:none;border:none;color:var(--over);font-size:12px;cursor:pointer;font-weight:600}
+  .lr-rename{cursor:pointer}
+  .lr-edit{color:var(--muted);font-size:12px}
+  .trip-row.tappable{cursor:pointer}
+  .trip-row.tappable:active{background:var(--panel-2)}
+  .tr-edit{color:var(--muted);font-size:16px}
+  .te-summary{font-size:13px;color:var(--muted);margin-bottom:14px;font-variant-numeric:tabular-nums}
   .pro-empty{color:var(--muted);text-align:center;padding:22px 8px;font-size:13.5px;line-height:1.5}
 
   /* analytics */
@@ -621,6 +636,41 @@
   </div>
 </div>
 
+<!-- Fuel edit modal -->
+<div class="modal-bg" id="fuelEditModal">
+  <div class="modal">
+    <h3>Edit fill-up</h3>
+    <div class="fuel-row2">
+      <div class="field"><label>Gallons</label><input id="feGallons" inputmode="decimal" placeholder="0.000"></div>
+      <div class="field"><label>Price / gal</label><input id="fePpg" inputmode="decimal" placeholder="0.000"></div>
+    </div>
+    <div class="fuel-row2">
+      <div class="field"><label>Total $</label><input id="feTotal" inputmode="decimal" placeholder="0.00"></div>
+      <div class="field"><label>Odometer</label><input id="feOdo" inputmode="decimal" placeholder="miles"></div>
+    </div>
+    <div class="field"><label>Date</label><input id="feDate" type="date"></div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="feCancel">Cancel</button>
+      <button class="b-remove" id="feDelete">Delete</button>
+      <button class="b-save" id="feSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trip edit modal -->
+<div class="modal-bg" id="tripEditModal">
+  <div class="modal">
+    <h3 id="tripEditTitle">Manage trip</h3>
+    <div class="te-summary" id="teSummary"></div>
+    <div class="field"><label>Trip name</label><input id="teName" autocomplete="off" placeholder="Trip name"></div>
+    <div class="modal-actions">
+      <button class="b-cancel" id="teCancel">Cancel</button>
+      <button class="b-remove" id="teDelete">Delete</button>
+      <button class="b-save" id="teSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit / save item modal -->
 <div class="modal-bg" id="itemModal">
   <div class="modal">
@@ -848,10 +898,13 @@ function render(){
   saved.forEach((s,i)=>{
     const c = document.createElement("button");
     c.className = "chip";
-    c.innerHTML = `<span>${esc(s.name)}</span><span class="p">${money(s.price)}</span>`;
-    c.onclick = ()=> addToCart(s.name, s.price, s.tax, s.cat);
+    c.innerHTML = `<span>${esc(s.name)}</span><span class="p">${money(s.price)}</span><span class="chip-edit" data-edit>✎</span>`;
+    c.onclick = (e)=>{
+      if(e.target.closest("[data-edit]")){ openEdit(i); return; }
+      addToCart(s.name, s.price, s.tax, s.cat);
+    };
     c.oncontextmenu = (e)=>{e.preventDefault();openEdit(i);};
-    // long-press to edit
+    // long-press to edit (shortcut)
     let t; c.addEventListener("touchstart",()=>{t=setTimeout(()=>openEdit(i),550);},{passive:true});
     c.addEventListener("touchend",()=>clearTimeout(t));
     c.addEventListener("touchmove",()=>clearTimeout(t));
@@ -1072,14 +1125,23 @@ function openLists(){
       const row = document.createElement("div");
       row.className = "list-row";
       row.innerHTML = `
-        <div class="lr-meta">
-          <div class="lr-name">${esc(list.name)}</div>
+        <div class="lr-meta lr-rename">
+          <div class="lr-name">${esc(list.name)} <span class="lr-edit">✎</span></div>
           <div class="lr-sub">${list.items.length} item${list.items.length!==1?"s":""} · ${money(total)}</div>
         </div>
         <div class="lr-acts">
           <button class="lr-load">Load</button>
           <button class="lr-del">Delete</button>
         </div>`;
+      row.querySelector(".lr-rename").onclick = ()=>{
+        $("listsModal").classList.remove("on");
+        promptName("Rename list","List name","List name",(name)=>{
+          list.name = name;
+          persist(); openLists();
+        });
+        // prefill current name
+        $("nameInput").value = list.name;
+      };
       row.querySelector(".lr-load").onclick = ()=>{
         if(cart.length && !confirm("Replace your current cart with this list?")) return;
         cart = list.items.map(it=>({...it}));
@@ -1214,16 +1276,47 @@ function openHistory(){
   }
 
   // recent trips list
-  body.innerHTML += `<div class="chart-lbl">Recent trips</div>`;
+  body.innerHTML += `<div class="chart-lbl">Recent trips · tap to manage</div>`;
   trips.slice().reverse().slice(0,10).forEach(t=>{
     const d = new Date(t.ts);
-    body.innerHTML += `<div class="trip-row"><span class="tr-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="tr-t">${money(t.total)}</span></div>`;
+    body.innerHTML += `<div class="trip-row tappable" data-trip-id="${t.id}"><span class="tr-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="tr-t">${money(t.total)} <span class="tr-edit">›</span></span></div>`;
+  });
+
+  // wire up trip taps (delegated, since rows are built via innerHTML)
+  body.querySelectorAll("[data-trip-id]").forEach(el=>{
+    el.onclick = ()=> openTripEdit(Number(el.getAttribute("data-trip-id")));
   });
 
   $("historyModal").classList.add("on");
 }
 $("historyClose").onclick = ()=> $("historyModal").classList.remove("on");
 $("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") $("historyModal").classList.remove("on"); });
+
+/* ---- edit / delete a trip ---- */
+let tripEditId = null;
+function openTripEdit(id){
+  const t = trips.find(x=>x.id===id);
+  if(!t) return;
+  tripEditId = id;
+  const d = new Date(t.ts);
+  $("teSummary").textContent = `${d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})} · ${t.count} items · ${money(t.total)}`;
+  $("teName").value = t.name || "";
+  $("tripEditModal").classList.add("on");
+}
+$("teCancel").onclick = ()=> $("tripEditModal").classList.remove("on");
+$("tripEditModal").addEventListener("click",e=>{ if(e.target.id==="tripEditModal") $("tripEditModal").classList.remove("on"); });
+$("teDelete").onclick = ()=>{
+  if(!confirm("Delete this trip? Its spending and price history will be removed.")) return;
+  trips = trips.filter(x=>x.id!==tripEditId);
+  $("tripEditModal").classList.remove("on");
+  persist(); openHistory();
+};
+$("teSave").onclick = ()=>{
+  const t = trips.find(x=>x.id===tripEditId);
+  if(t){ t.name = $("teName").value.trim() || "Trip"; }
+  $("tripEditModal").classList.remove("on");
+  persist(); openHistory();
+};
 
 /* ---------- Receipt scanner (Tesseract.js OCR) ---------- */
 let scanItems = [];   // [{name, price}]
@@ -1457,6 +1550,52 @@ $("fuelAdd").onclick = ()=>{
   renderFuel();
 };
 
+/* ---- edit / delete a fill-up ---- */
+let fuelEditId = null;
+function openFuelEdit(id){
+  const f = fuelLog.find(x=>x.id===id);
+  if(!f) return;
+  fuelEditId = id;
+  $("feGallons").value = f.gallons!=null ? f.gallons : "";
+  $("fePpg").value = f.ppg!=null ? f.ppg : "";
+  $("feTotal").value = f.total!=null ? f.total.toFixed(2) : "";
+  $("feOdo").value = f.odometer!=null ? f.odometer : "";
+  $("feDate").value = new Date(f.ts).toISOString().slice(0,10);
+  $("fuelEditModal").classList.add("on");
+}
+$("feCancel").onclick = ()=> $("fuelEditModal").classList.remove("on");
+$("fuelEditModal").addEventListener("click",e=>{ if(e.target.id==="fuelEditModal") $("fuelEditModal").classList.remove("on"); });
+$("feDelete").onclick = ()=>{
+  if(!confirm("Delete this fill-up?")) return;
+  fuelLog = fuelLog.filter(x=>x.id!==fuelEditId);
+  $("fuelEditModal").classList.remove("on");
+  persist(); renderFuel();
+};
+$("feSave").onclick = ()=>{
+  const f = fuelLog.find(x=>x.id===fuelEditId);
+  if(!f) return;
+  let g = parseFloat($("feGallons").value);
+  let p = parseFloat($("fePpg").value);
+  let t = parseFloat($("feTotal").value);
+  const odo = parseFloat($("feOdo").value);
+  // resolve missing value from the other two
+  if(isNaN(t) && !isNaN(g) && !isNaN(p)) t = g*p;
+  if(isNaN(t) || t<=0){ alert("Enter the total, or gallons and price per gallon."); return; }
+  if(isNaN(g)) g = (!isNaN(p) && p>0) ? t/p : null;
+  if(isNaN(p)) p = (g && g>0) ? t/g : null;
+  f.gallons = g||null;
+  f.ppg = p||null;
+  f.total = t;
+  f.odometer = isNaN(odo) ? null : odo;
+  // keep time-of-day but apply chosen date
+  if($("feDate").value){
+    const picked = new Date($("feDate").value + "T12:00:00");
+    if(!isNaN(picked)) f.ts = picked.getTime();
+  }
+  $("fuelEditModal").classList.remove("on");
+  persist(); renderFuel();
+};
+
 function renderFuel(){
   const sorted = fuelLog.slice().sort((a,b)=>a.ts-b.ts);
 
@@ -1563,18 +1702,14 @@ function renderFuel(){
     }
     if(f.odometer!=null) parts.push(f.odometer.toLocaleString()+" mi");
     const row = document.createElement("div");
-    row.className = "fuel-fill";
+    row.className = "fuel-fill tappable";
     row.innerHTML = `
       <div class="ff-main">
         <div>${money(f.total)} ${f.mpg?`<span class="ff-mpg">· ${f.mpg.toFixed(1)} MPG</span>`:``}</div>
         <div class="ff-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})} · ${parts.join(" · ")||"—"}</div>
       </div>
-      <button class="ff-del" title="Remove">×</button>`;
-    row.querySelector(".ff-del").onclick = ()=>{
-      if(!confirm("Delete this fill-up?")) return;
-      fuelLog = fuelLog.filter(x=>x.id!==f.id);
-      persist(); renderFuel();
-    };
+      <span class="ff-edit">›</span>`;
+    row.onclick = ()=> openFuelEdit(f.id);
     list.appendChild(row);
   });
 }
