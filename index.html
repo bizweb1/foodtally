@@ -238,6 +238,19 @@
   }
   .pro-cta-wide:active{filter:brightness(.93)}
 
+  /* header button group + auth */
+  .eyebrow-btns{display:flex;gap:6px}
+  .auth-sub{font-size:13px;color:var(--muted);margin:-6px 0 14px;line-height:1.5}
+  .auth-error{background:rgba(224,97,58,.14);border:1px solid var(--over);color:var(--over);
+    border-radius:9px;padding:9px 11px;font-size:13px;margin-bottom:12px;font-weight:600}
+  .auth-switch{width:100%;background:none;border:none;color:var(--accent);font-size:13.5px;
+    font-weight:700;cursor:pointer;font-family:inherit;padding:13px 0 4px}
+  .auth-link{width:100%;background:none;border:none;color:var(--muted);font-size:12.5px;
+    font-weight:600;cursor:pointer;font-family:inherit;padding:8px 0}
+  .auth-config{font-size:11.5px;color:var(--warn);text-align:center;margin-top:6px;line-height:1.4}
+  .acct-email{font-size:15px;font-weight:700;margin-bottom:4px;word-break:break-all}
+  .acct-status{font-size:13px;color:var(--muted);margin-bottom:6px}
+
   /* cart action buttons */
   .cart-actions{display:flex;gap:9px;margin-top:14px}
   .ca-btn{
@@ -344,13 +357,17 @@
     @page{margin:8mm}
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="eyebrow">
       <span class="name">Cart Tally</span>
-      <button class="settings-btn" id="settingsBtn">⚙ Budget &amp; tax</button>
+      <div class="eyebrow-btns">
+        <button class="settings-btn" id="accountBtn">👤 Sign in</button>
+        <button class="settings-btn" id="settingsBtn">⚙ Budget &amp; tax</button>
+      </div>
     </div>
     <div class="total"><span class="cur">$</span><span id="grandTotal">0.00</span></div>
     <div class="subline">
@@ -474,6 +491,33 @@
   </div>
 </div>
 
+<!-- Auth (sign in / register) modal -->
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <h3 id="authTitle">Sign in to Cart Tally</h3>
+    <p class="auth-sub" id="authSub">Save your carts, lists, and history across all your devices.</p>
+    <div id="authError" class="auth-error" style="display:none"></div>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <button class="b-save plan-cta" id="authSubmit">Sign in</button>
+    <button class="auth-switch" id="authSwitch">New here? Create an account</button>
+    <button class="auth-link" id="authForgot">Forgot password?</button>
+    <button class="b-cancel plan-close" id="authCancel">Keep using without an account</button>
+    <p class="auth-config" id="authConfig" style="display:none">⚠ Connect Supabase to enable accounts (see code).</p>
+  </div>
+</div>
+
+<!-- Account (logged in) modal -->
+<div class="modal-bg" id="acctModal">
+  <div class="modal">
+    <h3>Your account</h3>
+    <div class="acct-email" id="acctEmail">—</div>
+    <div class="acct-status" id="acctStatus"></div>
+    <button class="b-cancel plan-close" id="acctClose">Close</button>
+    <button class="auth-link" id="acctSignout" style="color:var(--over)">Sign out</button>
+  </div>
+</div>
+
 <!-- Edit / save item modal -->
 <div class="modal-bg" id="itemModal">
   <div class="modal">
@@ -540,35 +584,88 @@ let isPro = false;        // unlocked flag (client-side only for now)
 let savedCarts = [];      // [{id, name, items:[...], ts}]
 let trips = [];           // [{id, name, ts, total, sub, tax, count, cats:{cat:amount}}]
 
+/* ============================================================
+   SUPABASE CONFIG  —  fill these two in after creating your project
+   ------------------------------------------------------------
+   1. Go to supabase.com → New project (name it "Cart Tally").
+   2. Project Settings → API → copy "Project URL" and "anon public" key.
+   3. Paste them between the quotes below.
+   4. Run the SQL from the setup notes (creates the user_data table + RLS).
+   5. Auth → Providers → Email: turn OFF "Confirm email" for smooth signup.
+   The anon key is safe in client code; Row Level Security protects the data.
+   ============================================================ */
+const SUPABASE_URL = "https://gabfjzusvtfigvzanmrx.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ty-fUjvy0oopKrglWNq8fw_VXv9MmcY";
+
+let sb = null;            // supabase client (null until configured)
+let session = null;       // current auth session
+const authReady = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+if(authReady){
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 const $ = id => document.getElementById(id);
 const money = n => "$" + n.toFixed(2);
 
-/* ---------- persistence (localStorage) ----------
-   Note: works when the file is hosted (e.g. GitHub Pages) or opened locally.
-   Storage is per-device/per-browser. */
+/* ---------- persistence ----------
+   Logged out → localStorage (per device).
+   Logged in  → Supabase row (syncs across devices), with a local cache. */
 const STORE_KEY = "cartTally.v1";
+
+function snapshot(){
+  return { saved, cart, budget, taxRate, isPro, savedCarts, trips };
+}
+function applyState(d){
+  if(!d) return;
+  if(Array.isArray(d.saved)) saved = d.saved;
+  if(Array.isArray(d.cart)) cart = d.cart;
+  if(typeof d.budget === "number" || d.budget === null) budget = d.budget;
+  if(typeof d.taxRate === "number") taxRate = d.taxRate;
+  if(typeof d.isPro === "boolean") isPro = d.isPro;
+  if(Array.isArray(d.savedCarts)) savedCarts = d.savedCarts;
+  if(Array.isArray(d.trips)) trips = d.trips;
+}
+
+let saveTimer = null;
 function persist(){
+  // always cache locally
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); }catch(e){}
+  // debounce cloud writes when logged in
+  if(sb && session){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(cloudSave, 600);
+  }
+}
+async function cloudSave(){
+  if(!sb || !session) return;
   try{
-    localStorage.setItem(STORE_KEY, JSON.stringify({
-      saved, cart, budget, taxRate,
-      isPro, savedCarts, trips,
-      cat: cart.map(c=>c.cat)
-    }));
-  }catch(e){ /* storage unavailable (e.g. sandboxed preview) — app still runs */ }
+    await sb.from("user_data").upsert({
+      user_id: session.user.id,
+      data: snapshot(),
+      updated_at: new Date().toISOString()
+    });
+  }catch(e){ /* offline or transient — local cache still holds the data */ }
 }
 function loadState(){
   try{
     const raw = localStorage.getItem(STORE_KEY);
-    if(!raw) return;
-    const d = JSON.parse(raw);
-    if(Array.isArray(d.saved)) saved = d.saved;
-    if(Array.isArray(d.cart)) cart = d.cart;
-    if(typeof d.budget === "number" || d.budget === null) budget = d.budget;
-    if(typeof d.taxRate === "number") taxRate = d.taxRate;
-    if(typeof d.isPro === "boolean") isPro = d.isPro;
-    if(Array.isArray(d.savedCarts)) savedCarts = d.savedCarts;
-    if(Array.isArray(d.trips)) trips = d.trips;
-  }catch(e){ /* ignore corrupt/unavailable storage */ }
+    if(raw) applyState(JSON.parse(raw));
+  }catch(e){}
+}
+async function cloudLoad(){
+  if(!sb || !session) return;
+  try{
+    const { data, error } = await sb.from("user_data")
+      .select("data").eq("user_id", session.user.id).maybeSingle();
+    if(error) throw error;
+    if(data && data.data){
+      applyState(data.data);
+    } else {
+      // first login on this account — push whatever is local up to the cloud
+      await cloudSave();
+    }
+  }catch(e){ /* keep local state on failure */ }
+  renderProSection(); render();
 }
 
 /* ---------- categories (in store-walk order) ---------- */
@@ -1172,11 +1269,128 @@ $("sSave").onclick = ()=>{
 
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
+/* ---------- Auth UI ---------- */
+let authMode = "signin";   // "signin" | "signup"
+
+function openAuth(){
+  if(session){ openAcct(); return; }
+  setAuthMode("signin");
+  $("authError").style.display = "none";
+  $("authConfig").style.display = authReady ? "none" : "block";
+  $("authModal").classList.add("on");
+}
+function setAuthMode(mode){
+  authMode = mode;
+  if(mode === "signup"){
+    $("authTitle").textContent = "Create your account";
+    $("authSub").textContent = "Free to start. Your carts and history sync across devices.";
+    $("authSubmit").textContent = "Create account";
+    $("authSwitch").textContent = "Already have an account? Sign in";
+    $("authForgot").style.display = "none";
+    $("authPassword").autocomplete = "new-password";
+  } else {
+    $("authTitle").textContent = "Sign in to Cart Tally";
+    $("authSub").textContent = "Save your carts, lists, and history across all your devices.";
+    $("authSubmit").textContent = "Sign in";
+    $("authSwitch").textContent = "New here? Create an account";
+    $("authForgot").style.display = "block";
+    $("authPassword").autocomplete = "current-password";
+  }
+}
+function authError(msg){
+  const el = $("authError"); el.textContent = msg; el.style.display = "block";
+}
+
+$("accountBtn").onclick = openAuth;
+$("authCancel").onclick = ()=> $("authModal").classList.remove("on");
+$("authModal").addEventListener("click",e=>{ if(e.target.id==="authModal") $("authModal").classList.remove("on"); });
+$("authSwitch").onclick = ()=> setAuthMode(authMode === "signin" ? "signup" : "signin");
+
+$("authSubmit").onclick = async ()=>{
+  if(!authReady){ authError("Accounts aren't connected yet. Add your Supabase URL and key in the code."); return; }
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  if(!email || !password){ authError("Enter your email and password."); return; }
+  if(password.length < 6){ authError("Password must be at least 6 characters."); return; }
+  $("authSubmit").disabled = true; $("authSubmit").textContent = "Working…";
+  try{
+    let res;
+    if(authMode === "signup"){
+      res = await sb.auth.signUp({ email, password });
+    } else {
+      res = await sb.auth.signInWithPassword({ email, password });
+    }
+    if(res.error) throw res.error;
+    // session change handler will finish the work
+    $("authModal").classList.remove("on");
+  }catch(err){
+    authError(err.message || "Something went wrong. Please try again.");
+  }finally{
+    $("authSubmit").disabled = false;
+    setAuthMode(authMode);
+  }
+};
+
+$("authForgot").onclick = async ()=>{
+  if(!authReady){ authError("Connect Supabase first."); return; }
+  const email = $("authEmail").value.trim();
+  if(!email){ authError("Enter your email above first, then tap reset."); return; }
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(email);
+    if(error) throw error;
+    authError(""); $("authError").style.display="none";
+    alert("Password reset link sent to " + email + " (check your inbox).");
+  }catch(err){ authError(err.message || "Couldn't send reset email."); }
+};
+
+/* ---------- Account modal ---------- */
+function openAcct(){
+  if(!session) return;
+  $("acctEmail").textContent = session.user.email;
+  $("acctStatus").textContent = isPro ? "⭐ Cart Tally Pro — active" : "Free plan";
+  $("acctModal").classList.add("on");
+}
+$("acctClose").onclick = ()=> $("acctModal").classList.remove("on");
+$("acctModal").addEventListener("click",e=>{ if(e.target.id==="acctModal") $("acctModal").classList.remove("on"); });
+$("acctSignout").onclick = async ()=>{
+  if(sb) await sb.auth.signOut();
+  $("acctModal").classList.remove("on");
+};
+
+function reflectAuth(){
+  $("accountBtn").textContent = session ? "👤 Account" : "👤 Sign in";
+}
+
+/* react to login / logout */
+if(sb){
+  sb.auth.onAuthStateChange((_event, newSession)=>{
+    const wasLoggedOut = !session;
+    session = newSession;
+    reflectAuth();
+    if(session && wasLoggedOut){
+      // merge: keep current local data, then load/sync cloud
+      cloudLoad();
+    }
+  });
+}
+
 /* ---------- init ---------- */
 loadState();
 if(isPro) $("testUnlockBtn").textContent = "🔒 Lock again (dev)";
+reflectAuth();
 renderProSection();
 render();
+
+// pick up an existing session on load (stay logged in across visits)
+if(sb){
+  sb.auth.getSession().then(({ data })=>{
+    if(data && data.session){
+      session = data.session;
+      reflectAuth();
+      cloudLoad();
+    }
+  });
+}
 </script>
 </body>
 </html>
