@@ -453,21 +453,28 @@
       margin:10px auto 4px;height:42px;width:200px;
       background:repeating-linear-gradient(90deg,#000 0,#000 2px,#fff 2px,#fff 4px,#000 4px,#000 5px,#fff 5px,#fff 9px);
     }
-    /* monthly report print */
-    #reportPrintArea{display:block;color:#000;max-width:680px;margin:0 auto;font-size:12px}
-    #reportPrintArea .bc-bar{background:#222 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .cb-fill{background:#444 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .cb-track{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .rp-bigstat{border:1px solid #000;background:#f5f5f5 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .rp-sec-title{border-bottom:2px solid #000;color:#000}
-    #reportPrintArea .rp-stat{border:1px solid #999}
-    #reportPrintArea .bc-v,#reportPrintArea .bc-x,#reportPrintArea .rp-sk,#reportPrintArea .rp-foot,#reportPrintArea .cb-amt{color:#444}
+    /* monthly report print — force light, paper-friendly styling */
+    #reportPrintArea{display:block;color:#000 !important;max-width:680px;margin:0 auto;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea *{color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .bc-bar{background:#333 !important}
+    #reportPrintArea .cb-fill{background:#555 !important}
+    #reportPrintArea .cb-track{background:#e8e8e8 !important}
+    #reportPrintArea .rp-bigstat{border:1px solid #000;background:#f4f4f4 !important}
+    #reportPrintArea .rp-bs-v{color:#000 !important}
+    #reportPrintArea .rp-sec-title{border-bottom:2px solid #000;color:#000 !important}
+    /* stat boxes (grocery + fuel both use .rp-stat) */
+    #reportPrintArea .rp-stat{border:1px solid #bbb;background:#f4f4f4 !important}
+    #reportPrintArea .rp-stat .rp-sv{color:#000 !important}
+    #reportPrintArea .rp-sk{color:#555 !important}
+    #reportPrintArea .bc-v{color:#000 !important}
+    #reportPrintArea .bc-x,#reportPrintArea .rp-foot,#reportPrintArea .cb-amt{color:#666 !important}
     #reportPrintArea .rp-row{border-bottom:1px solid #ccc}
-    #reportPrintArea .linechart .lc-area{fill:#222 !important;opacity:.08;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .linechart .lc-line{stroke:#222 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    #reportPrintArea .linechart .lc-dot{fill:#000 !important;stroke:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .rp-month,#reportPrintArea .rp-bs-k{color:#555 !important}
+    #reportPrintArea .linechart .lc-area{fill:#888 !important;opacity:.12}
+    #reportPrintArea .linechart .lc-line{stroke:#222 !important}
+    #reportPrintArea .linechart .lc-dot{fill:#000 !important;stroke:#fff !important}
     #reportPrintArea .linechart .lc-val{fill:#000 !important}
-    #reportPrintArea .linechart .lc-x{fill:#555 !important}
+    #reportPrintArea .linechart .lc-x{fill:#666 !important}
     @page{margin:8mm}
   }
 </style>
