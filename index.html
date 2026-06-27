@@ -461,29 +461,30 @@
     <div class="eyebrow">
       <span class="name">Cart Tally</span>
       <div class="eyebrow-btns">
+        <button class="settings-btn" id="langBtn">🌐 ES</button>
         <button class="settings-btn" id="accountBtn">👤 Sign in</button>
         <button class="settings-btn" id="settingsBtn">⚙ Budget &amp; tax</button>
       </div>
     </div>
     <div class="total"><span class="cur">$</span><span id="grandTotal">0.00</span></div>
     <div class="subline">
-      <span>Items <b id="itemCount">0</b></span>
-      <span>Subtotal <b id="subtotal">$0.00</b></span>
-      <span>Tax <b id="taxAmt">$0.00</b></span>
+      <span><span data-i18n="items">Items</span> <b id="itemCount">0</b></span>
+      <span><span data-i18n="subtotal">Subtotal</span> <b id="subtotal">$0.00</b></span>
+      <span><span data-i18n="tax">Tax</span> <b id="taxAmt">$0.00</b></span>
     </div>
     <div class="bhero" id="budgetWrap" style="display:none">
       <div class="top">
-        <span class="lbl">Budget</span>
+        <span class="lbl" data-i18n="budget">Budget</span>
         <span class="cap" id="budgetVal">$0</span>
       </div>
       <div class="gauge" id="gauge"></div>
       <div class="brow">
         <div class="blockL">
-          <div class="k">Spent</div>
+          <div class="k" data-i18n="spent">Spent</div>
           <div class="v spent" id="spentVal">$0.00</div>
         </div>
         <div class="blockR">
-          <div class="k">Remaining</div>
+          <div class="k" data-i18n="remaining">Remaining</div>
           <div class="v rem" id="remVal">$0.00</div>
         </div>
       </div>
@@ -492,31 +493,31 @@
   </header>
 
   <main>
-    <div class="sec-head">Tap to add</div>
+    <div class="sec-head" data-i18n="tapToAdd">Tap to add</div>
     <div class="chips" id="savedChips"></div>
 
     <div class="sec-head sec-head-row">
-      <span>In your cart</span>
-      <button class="print-btn" id="printBtn">🧾 Print receipt</button>
+      <span data-i18n="inYourCart">In your cart</span>
+      <button class="print-btn" id="printBtn" data-i18n="printReceipt">🧾 Print receipt</button>
     </div>
     <div id="cart"></div>
 
     <!-- cart actions (save list / finish trip) -->
     <div class="cart-actions" id="cartActions" style="display:none">
-      <button class="ca-btn" id="saveCartBtn">💾 Save as list <span class="ca-pro">PRO</span></button>
-      <button class="ca-btn ca-primary" id="finishTripBtn">✓ Finish trip <span class="ca-pro">PRO</span></button>
+      <button class="ca-btn" id="saveCartBtn"><span data-i18n="saveAsList">💾 Save as list</span> <span class="ca-pro">PRO</span></button>
+      <button class="ca-btn ca-primary" id="finishTripBtn"><span data-i18n="finishTrip">✓ Finish trip</span> <span class="ca-pro">PRO</span></button>
     </div>
 
     <div class="sec-head" id="proHeading" style="margin-top:26px">⭐ Cart Tally Pro</div>
     <div class="pro-grid" id="proGrid"></div>
-    <button class="pro-cta-wide" id="proCtaWide">⭐ See Cart Tally Pro — $2.99/mo</button>
+    <button class="pro-cta-wide" id="proCtaWide" data-i18n="proSeeWide">⭐ See Cart Tally Pro — $2.99/mo</button>
   </main>
 
   <div class="addbar">
     <div class="row">
-      <input class="f-name" id="addName" placeholder="Item name" autocomplete="off">
+      <input class="f-name" id="addName" data-i18n-ph="itemName" placeholder="Item name" autocomplete="off">
       <input class="f-price" id="addPrice" placeholder="0.00" inputmode="decimal">
-      <button class="btn-add" id="addBtn">Add</button>
+      <button class="btn-add" id="addBtn" data-i18n="add">Add</button>
     </div>
   </div>
 </div>
@@ -528,31 +529,31 @@
 <!-- Upgrade modal -->
 <div class="modal-bg" id="proModal">
   <div class="modal pro-modal">
-    <h3>Choose your plan</h3>
+    <h3 data-i18n="choosePlan">Choose your plan</h3>
     <div class="plan">
-      <div class="plan-head"><span class="plan-name">Free</span><span class="plan-price">$0</span></div>
+      <div class="plan-head"><span class="plan-name" data-i18n="free">Free</span><span class="plan-price">$0</span></div>
       <ul class="plan-feats">
-        <li>✓ Unlimited carts</li>
-        <li>✓ Auto-categorized items</li>
-        <li>✓ Budget tracking</li>
-        <li>✓ Printable receipts</li>
+        <li data-i18n="planFree1">✓ Unlimited carts</li>
+        <li data-i18n="planFree2">✓ Auto-categorized items</li>
+        <li data-i18n="planFree3">✓ Budget tracking</li>
+        <li data-i18n="planFree4">✓ Printable receipts</li>
       </ul>
-      <div class="plan-current">Your current plan</div>
+      <div class="plan-current" data-i18n="yourCurrentPlan">Your current plan</div>
     </div>
 
     <div class="plan plan-pro">
       <div class="plan-head"><span class="plan-name">⭐ Cart Tally Pro</span><span class="plan-price">$2.99<small>/mo</small></span></div>
       <ul class="plan-feats">
-        <li>✓ Receipt scanner</li>
-        <li>✓ Saved shopping lists</li>
-        <li>✓ Trip history &amp; price tracking</li>
-        <li>✓ Spending analytics &amp; charts</li>
+        <li data-i18n="planPro1">✓ Receipt scanner</li>
+        <li data-i18n="planPro2">✓ Saved shopping lists</li>
+        <li data-i18n="planPro3">✓ Trip history &amp; price tracking</li>
+        <li data-i18n="planPro4">✓ Spending analytics &amp; charts</li>
       </ul>
-      <div class="plan-note">All five features are live in this version. Payment &amp; secure unlock connect via Stripe at launch.</div>
-      <button class="b-save plan-cta" id="upgradeBtn">Upgrade Now</button>
+      <div class="plan-note" data-i18n="planNote">All five features are live in this version. Payment &amp; secure unlock connect via Stripe at launch.</div>
+      <button class="b-save plan-cta" id="upgradeBtn" data-i18n="upgradeNow">Upgrade Now</button>
     </div>
 
-    <button class="b-cancel plan-close" id="proCancel">Maybe later</button>
+    <button class="b-cancel plan-close" id="proCancel" data-i18n="maybeLater">Maybe later</button>
     <button class="plan-test" id="testUnlockBtn">🔓 Unlock for testing (dev)</button>
   </div>
 </div>
@@ -560,19 +561,19 @@
 <!-- Saved Lists modal -->
 <div class="modal-bg" id="listsModal">
   <div class="modal pro-modal">
-    <h3>💾 Saved lists</h3>
+    <h3 data-i18n="savedListsTitle">💾 Saved lists</h3>
     <div id="listsBody"></div>
-    <button class="b-save plan-cta" id="saveCurrentAsList" style="margin-top:8px">Save current cart as a list</button>
-    <button class="b-cancel plan-close" id="listsClose">Close</button>
+    <button class="b-save plan-cta" id="saveCurrentAsList" style="margin-top:8px" data-i18n="saveCurrentList">Save current cart as a list</button>
+    <button class="b-cancel plan-close" id="listsClose" data-i18n="close">Close</button>
   </div>
 </div>
 
 <!-- Trip History / Analytics modal -->
 <div class="modal-bg" id="historyModal">
   <div class="modal pro-modal">
-    <h3>📊 Trips &amp; analytics</h3>
+    <h3 data-i18n="tripsAnalytics">📊 Trips &amp; analytics</h3>
     <div id="historyBody"></div>
-    <button class="b-cancel plan-close" id="historyClose">Close</button>
+    <button class="b-cancel plan-close" id="historyClose" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -582,8 +583,8 @@
     <h3 id="nameTitle">Name this list</h3>
     <div class="field"><label id="nameLabel">List name</label><input id="nameInput" autocomplete="off" placeholder="e.g. Weekly groceries"></div>
     <div class="modal-actions">
-      <button class="b-cancel" id="nameCancel">Cancel</button>
-      <button class="b-save" id="nameSave">Save</button>
+      <button class="b-cancel" id="nameCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-save" id="nameSave" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
@@ -594,102 +595,102 @@
     <h3 id="authTitle">Sign in to Cart Tally</h3>
     <p class="auth-sub" id="authSub">Save your carts, lists, and history across all your devices.</p>
     <div id="authError" class="auth-error" style="display:none"></div>
-    <div class="field"><label>Email</label><input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-    <button class="b-save plan-cta" id="authSubmit">Sign in</button>
-    <button class="auth-switch" id="authSwitch">New here? Create an account</button>
-    <button class="auth-link" id="authForgot">Forgot password?</button>
-    <button class="b-cancel plan-close" id="authCancel">Keep using without an account</button>
-    <p class="auth-config" id="authConfig" style="display:none">⚠ Connect Supabase to enable accounts (see code).</p>
+    <div class="field"><label data-i18n="email">Email</label><input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label data-i18n="password">Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <button class="b-save plan-cta" id="authSubmit" data-i18n="doSignin">Sign in</button>
+    <button class="auth-switch" id="authSwitch" data-i18n="switchToSignup">New here? Create an account</button>
+    <button class="auth-link" id="authForgot" data-i18n="forgot">Forgot password?</button>
+    <button class="b-cancel plan-close" id="authCancel" data-i18n="keepWithout">Keep using without an account</button>
+    <p class="auth-config" id="authConfig" style="display:none" data-i18n="authConfig">⚠ Connect Supabase to enable accounts (see code).</p>
   </div>
 </div>
 
 <!-- Account (logged in) modal -->
 <div class="modal-bg" id="acctModal">
   <div class="modal">
-    <h3>Your account</h3>
+    <h3 data-i18n="yourAccount">Your account</h3>
     <div class="acct-email" id="acctEmail">—</div>
     <div class="acct-status" id="acctStatus"></div>
-    <button class="b-cancel plan-close" id="acctClose">Close</button>
-    <button class="auth-link" id="acctSignout" style="color:var(--over)">Sign out</button>
+    <button class="b-cancel plan-close" id="acctClose" data-i18n="close">Close</button>
+    <button class="auth-link" id="acctSignout" style="color:var(--over)" data-i18n="signOut">Sign out</button>
   </div>
 </div>
 
 <!-- Receipt scanner modal -->
 <div class="modal-bg" id="scanModal">
   <div class="modal pro-modal">
-    <h3>📷 Scan a receipt</h3>
-    <p class="auth-sub" id="scanIntro">Take a photo of your receipt — Cart Tally reads the items, then you review and edit before adding. Works best on a flat, well-lit receipt.</p>
+    <h3 data-i18n="scanTitle">📷 Scan a receipt</h3>
+    <p class="auth-sub" id="scanIntro" data-i18n="scanIntro">Take a photo of your receipt — Cart Tally reads the items, then you review and edit before adding. Works best on a flat, well-lit receipt.</p>
 
     <input type="file" id="scanInput" accept="image/*" style="display:none">
     <div id="scanStage1">
-      <button class="b-save plan-cta" id="scanTakeBtn">📸 Take photo or choose from album</button>
+      <button class="b-save plan-cta" id="scanTakeBtn" data-i18n="takePhoto">📸 Take photo or choose from album</button>
     </div>
 
     <div id="scanStage2" style="display:none">
       <div class="scan-progress"><div class="scan-progress-bar" id="scanBar"></div></div>
-      <div class="scan-status" id="scanStatus">Reading receipt…</div>
+      <div class="scan-status" id="scanStatus" data-i18n="readingReceipt">Reading receipt…</div>
     </div>
 
     <div id="scanStage3" style="display:none">
-      <div class="scan-review-head">Review &amp; edit — fix anything wrong, then add.</div>
+      <div class="scan-review-head" data-i18n="reviewEdit">Review &amp; edit — fix anything wrong, then add.</div>
       <div id="scanReview"></div>
-      <button class="scan-addrow" id="scanAddRow">+ Add a missed item</button>
+      <button class="scan-addrow" id="scanAddRow" data-i18n="addMissed">+ Add a missed item</button>
       <div class="scan-foot">
         <div class="scan-count" id="scanCount">0 items · $0.00</div>
-        <button class="b-save plan-cta" id="scanConfirm">Add to cart</button>
+        <button class="b-save plan-cta" id="scanConfirm" data-i18n="addToCart">Add to cart</button>
       </div>
     </div>
 
-    <button class="b-cancel plan-close" id="scanClose">Cancel</button>
+    <button class="b-cancel plan-close" id="scanClose" data-i18n="cancel">Cancel</button>
   </div>
 </div>
 
 <!-- Fuel log modal -->
 <div class="modal-bg" id="fuelModal">
   <div class="modal pro-modal">
-    <h3>⛽ Fuel log</h3>
+    <h3 data-i18n="fuelTitle">⛽ Fuel log</h3>
 
     <!-- add a fill-up -->
     <div class="fuel-form">
       <input type="file" id="fuelScanInput" accept="image/*" style="display:none">
-      <button class="fuel-scan-btn" id="fuelScanBtn">📷 Scan gas receipt</button>
+      <button class="fuel-scan-btn" id="fuelScanBtn" data-i18n="scanGasReceipt">📷 Scan gas receipt</button>
       <div class="fuel-scan-status" id="fuelScanStatus" style="display:none"></div>
       <div class="fuel-row2">
-        <div class="field"><label>Gallons</label><input id="fGallons" inputmode="decimal" placeholder="0.000"></div>
-        <div class="field"><label>Price / gal</label><input id="fPpg" inputmode="decimal" placeholder="0.000"></div>
+        <div class="field"><label data-i18n="gallons">Gallons</label><input id="fGallons" inputmode="decimal" placeholder="0.000"></div>
+        <div class="field"><label data-i18n="pricePerGal">Price / gal</label><input id="fPpg" inputmode="decimal" placeholder="0.000"></div>
       </div>
       <div class="fuel-row2">
-        <div class="field"><label>Total $</label><input id="fTotal" inputmode="decimal" placeholder="auto"></div>
-        <div class="field"><label>Odometer <span class="opt">(for MPG)</span></label><input id="fOdo" inputmode="decimal" placeholder="miles"></div>
+        <div class="field"><label data-i18n="totalDollar">Total $</label><input id="fTotal" inputmode="decimal" placeholder="auto"></div>
+        <div class="field"><label><span data-i18n="odometer">Odometer</span> <span class="opt" data-i18n="forMpg">(for MPG)</span></label><input id="fOdo" inputmode="decimal" placeholder="miles"></div>
       </div>
-      <button class="b-save plan-cta" id="fuelAdd">Add fill-up</button>
+      <button class="b-save plan-cta" id="fuelAdd" data-i18n="addFillup">Add fill-up</button>
     </div>
 
     <div id="fuelStats"></div>
     <div id="fuelList"></div>
 
-    <button class="b-cancel plan-close" id="fuelClose">Close</button>
+    <button class="b-cancel plan-close" id="fuelClose" data-i18n="close">Close</button>
   </div>
 </div>
 
 <!-- Fuel edit modal -->
 <div class="modal-bg" id="fuelEditModal">
   <div class="modal">
-    <h3>Edit fill-up</h3>
+    <h3 data-i18n="editFillup">Edit fill-up</h3>
     <div class="fuel-row2">
-      <div class="field"><label>Gallons</label><input id="feGallons" inputmode="decimal" placeholder="0.000"></div>
-      <div class="field"><label>Price / gal</label><input id="fePpg" inputmode="decimal" placeholder="0.000"></div>
+      <div class="field"><label data-i18n="gallons">Gallons</label><input id="feGallons" inputmode="decimal" placeholder="0.000"></div>
+      <div class="field"><label data-i18n="pricePerGal">Price / gal</label><input id="fePpg" inputmode="decimal" placeholder="0.000"></div>
     </div>
     <div class="fuel-row2">
-      <div class="field"><label>Total $</label><input id="feTotal" inputmode="decimal" placeholder="0.00"></div>
-      <div class="field"><label>Odometer</label><input id="feOdo" inputmode="decimal" placeholder="miles"></div>
+      <div class="field"><label data-i18n="totalDollar">Total $</label><input id="feTotal" inputmode="decimal" placeholder="0.00"></div>
+      <div class="field"><label data-i18n="odometer">Odometer</label><input id="feOdo" inputmode="decimal" placeholder="miles"></div>
     </div>
-    <div class="field"><label>Date</label><input id="feDate" type="date"></div>
+    <div class="field"><label data-i18n="date">Date</label><input id="feDate" type="date"></div>
     <div class="modal-actions">
-      <button class="b-cancel" id="feCancel">Cancel</button>
-      <button class="b-remove" id="feDelete">Delete</button>
-      <button class="b-save" id="feSave">Save</button>
+      <button class="b-cancel" id="feCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-remove" id="feDelete" data-i18n="del">Delete</button>
+      <button class="b-save" id="feSave" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
@@ -699,11 +700,11 @@
   <div class="modal">
     <h3 id="tripEditTitle">Manage trip</h3>
     <div class="te-summary" id="teSummary"></div>
-    <div class="field"><label>Trip name</label><input id="teName" autocomplete="off" placeholder="Trip name"></div>
+    <div class="field"><label data-i18n="tripName">Trip name</label><input id="teName" autocomplete="off" placeholder="Trip name"></div>
     <div class="modal-actions">
-      <button class="b-cancel" id="teCancel">Cancel</button>
-      <button class="b-remove" id="teDelete">Delete</button>
-      <button class="b-save" id="teSave">Save</button>
+      <button class="b-cancel" id="teCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-remove" id="teDelete" data-i18n="del">Delete</button>
+      <button class="b-save" id="teSave" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
@@ -713,10 +714,10 @@
   <div class="modal pro-modal report-modal">
     <div class="report-toolbar">
       <select id="reportMonth"></select>
-      <button class="report-print" id="reportPrint">🖨 Print / PDF</button>
+      <button class="report-print" id="reportPrint" data-i18n="reportPrint">🖨 Print / PDF</button>
     </div>
     <div id="reportBody"></div>
-    <button class="b-cancel plan-close" id="reportClose">Close</button>
+    <button class="b-cancel plan-close" id="reportClose" data-i18n="close">Close</button>
   </div>
 </div>
 
@@ -724,15 +725,15 @@
 <div class="modal-bg" id="itemModal">
   <div class="modal">
     <h3 id="modalTitle">Edit saved item</h3>
-    <div class="field"><label>Name</label><input id="mName" autocomplete="off"></div>
-    <div class="field"><label>Usual price</label><input id="mPrice" inputmode="decimal" placeholder="0.00"></div>
-    <div class="field"><label>Taxable?</label>
-      <select id="mTax"><option value="yes">Yes — apply tax</option><option value="no">No tax</option></select>
+    <div class="field"><label data-i18n="name">Name</label><input id="mName" autocomplete="off"></div>
+    <div class="field"><label data-i18n="usualPrice">Usual price</label><input id="mPrice" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label data-i18n="taxableQ">Taxable?</label>
+      <select id="mTax"><option value="yes" data-i18n="taxYes">Yes — apply tax</option><option value="no" data-i18n="taxNo">No tax</option></select>
     </div>
     <div class="modal-actions">
-      <button class="b-cancel" id="mCancel">Cancel</button>
-      <button class="b-remove" id="mRemove" style="display:none">Remove</button>
-      <button class="b-save" id="mSave">Save</button>
+      <button class="b-cancel" id="mCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-remove" id="mRemove" style="display:none" data-i18n="removeBtn">Remove</button>
+      <button class="b-save" id="mSave" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
@@ -740,12 +741,13 @@
 <!-- Settings modal -->
 <div class="modal-bg" id="setModal">
   <div class="modal">
-    <h3>Budget &amp; tax</h3>
-    <div class="field"><label>Budget cap (leave blank for none)</label><input id="sBudget" inputmode="decimal" placeholder="e.g. 120"></div>
-    <div class="field"><label>Sales tax rate %</label><input id="sTax" inputmode="decimal" placeholder="e.g. 8.5"></div>
+    <h3 data-i18n="budgetTaxTitle">Budget &amp; tax</h3>
+    <div class="field"><label data-i18n="budgetCap">Budget cap (leave blank for none)</label><input id="sBudget" inputmode="decimal" placeholder="e.g. 120"></div>
+    <div class="field"><label data-i18n="taxRateLbl">Sales tax rate %</label><input id="sTax" inputmode="decimal" placeholder="e.g. 8.5"></div>
+    <div class="field"><label data-i18n="language">Language</label><select id="sLang"><option value="en">English</option><option value="es">Español</option></select></div>
     <div class="modal-actions">
-      <button class="b-cancel" id="sCancel">Cancel</button>
-      <button class="b-save" id="sSave">Save</button>
+      <button class="b-cancel" id="sCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-save" id="sSave" data-i18n="save">Save</button>
     </div>
   </div>
 </div>
@@ -758,8 +760,8 @@
       <select id="recatSelect"></select>
     </div>
     <div class="modal-actions">
-      <button class="b-cancel" id="rcCancel">Cancel</button>
-      <button class="b-save" id="rcSave">Move</button>
+      <button class="b-cancel" id="rcCancel" data-i18n="cancel">Cancel</button>
+      <button class="b-save" id="rcSave" data-i18n="move">Move</button>
     </div>
   </div>
 </div>
@@ -809,6 +811,241 @@ if(authReady){
 
 const $ = id => document.getElementById(id);
 const money = n => "$" + n.toFixed(2);
+
+/* ============================================================
+   i18n — English / Spanish
+   ============================================================ */
+let lang = "en";  // set properly in init (auto-detect + saved)
+
+const I18N = {
+  // header
+  brand:            {en:"Cart Tally", es:"Cart Tally"},
+  signIn:           {en:"👤 Sign in", es:"👤 Entrar"},
+  account:          {en:"👤 Account", es:"👤 Cuenta"},
+  budgetTax:        {en:"⚙ Budget & tax", es:"⚙ Presupuesto e impuesto"},
+  items:            {en:"Items", es:"Artículos"},
+  subtotal:         {en:"Subtotal", es:"Subtotal"},
+  tax:              {en:"Tax", es:"Impuesto"},
+  // budget hero
+  budget:           {en:"Budget", es:"Presupuesto"},
+  spent:            {en:"Spent", es:"Gastado"},
+  remaining:        {en:"Remaining", es:"Restante"},
+  overByLabel:      {en:"Over by", es:"Excedido por"},
+  // sections
+  tapToAdd:         {en:"Tap to add", es:"Toca para agregar"},
+  saveItem:         {en:"+ Save item", es:"+ Guardar artículo"},
+  inYourCart:       {en:"In your cart", es:"En tu carrito"},
+  printReceipt:     {en:"🧾 Print receipt", es:"🧾 Imprimir recibo"},
+  cartEmpty:        {en:"Nothing here yet.<br>Tap a saved item or add one below as you drop it in the cart.", es:"Nada aquí todavía.<br>Toca un artículo guardado o agrega uno abajo al ponerlo en el carrito."},
+  // add bar
+  itemName:         {en:"Item name", es:"Nombre del artículo"},
+  add:              {en:"Add", es:"Agregar"},
+  // cart item
+  each:             {en:"each", es:"c/u"},
+  taxable:          {en:"taxable", es:"con impuesto"},
+  remove:           {en:"remove", es:"quitar"},
+  // cart actions
+  saveAsList:       {en:"💾 Save as list", es:"💾 Guardar como lista"},
+  finishTrip:       {en:"✓ Finish trip", es:"✓ Finalizar compra"},
+  // pro section
+  proHeading:       {en:"⭐ Cart Tally Pro", es:"⭐ Cart Tally Pro"},
+  proActive:        {en:"⭐ Cart Tally Pro · Active", es:"⭐ Cart Tally Pro · Activo"},
+  proSeeWide:       {en:"⭐ See Cart Tally Pro — $2.99/mo", es:"⭐ Ver Cart Tally Pro — $2.99/mes"},
+  proTapPreview:    {en:"Pro · Tap to preview", es:"Pro · Toca para ver"},
+  proActiveBadge:   {en:"Pro · Active", es:"Pro · Activo"},
+  open:             {en:"Open →", es:"Abrir →"},
+  // pro feature titles + descs
+  f_scan:           {en:"Receipt scanner", es:"Escáner de recibos"},
+  f_scan_d:         {en:"Snap a receipt, auto-fill the cart", es:"Foto del recibo, llena el carrito"},
+  f_lists:          {en:"Saved lists", es:"Listas guardadas"},
+  f_lists_d:        {en:"Save & reload named carts", es:"Guarda y recarga carritos"},
+  f_history:        {en:"Trip history", es:"Historial de compras"},
+  f_history_d:      {en:"Every shop, saved", es:"Cada compra, guardada"},
+  f_analytics:      {en:"Spending analytics", es:"Análisis de gastos"},
+  f_analytics_d:    {en:"Charts & trends", es:"Gráficas y tendencias"},
+  f_prices:         {en:"Price history", es:"Historial de precios"},
+  f_prices_d:       {en:"Track item prices over time", es:"Sigue precios con el tiempo"},
+  f_fuel:           {en:"Fuel log", es:"Registro de gasolina"},
+  f_fuel_d:         {en:"Track gas, price/gal & MPG", es:"Gasolina, precio/gal y MPG"},
+  f_report:         {en:"Monthly report", es:"Reporte mensual"},
+  f_report_d:       {en:"Full report, charts, printable", es:"Reporte completo, imprimible"},
+  // upgrade modal
+  choosePlan:       {en:"Choose your plan", es:"Elige tu plan"},
+  free:             {en:"Free", es:"Gratis"},
+  planFree1:        {en:"✓ Unlimited carts", es:"✓ Carritos ilimitados"},
+  planFree2:        {en:"✓ Auto-categorized items", es:"✓ Categorías automáticas"},
+  planFree3:        {en:"✓ Budget tracking", es:"✓ Control de presupuesto"},
+  planFree4:        {en:"✓ Printable receipts", es:"✓ Recibos imprimibles"},
+  yourCurrentPlan:  {en:"Your current plan", es:"Tu plan actual"},
+  planPro1:         {en:"✓ Receipt scanner", es:"✓ Escáner de recibos"},
+  planPro2:         {en:"✓ Saved shopping lists", es:"✓ Listas de compras"},
+  planPro3:         {en:"✓ Trip history & price tracking", es:"✓ Historial y precios"},
+  planPro4:         {en:"✓ Spending analytics & charts", es:"✓ Análisis y gráficas"},
+  planNote:         {en:"All five features are live in this version. Payment & secure unlock connect via Stripe at launch.", es:"Las cinco funciones están activas. El pago y desbloqueo seguro se conectan con Stripe al lanzar."},
+  upgradeNow:       {en:"Upgrade Now", es:"Mejorar ahora"},
+  maybeLater:       {en:"Maybe later", es:"Quizás después"},
+  unlockTest:       {en:"🔓 Unlock for testing (dev)", es:"🔓 Desbloquear para probar (dev)"},
+  lockTest:         {en:"🔒 Lock again (dev)", es:"🔒 Bloquear otra vez (dev)"},
+  // auth
+  authSigninTitle:  {en:"Sign in to Cart Tally", es:"Entra a Cart Tally"},
+  authSignupTitle:  {en:"Create your account", es:"Crea tu cuenta"},
+  authSigninSub:    {en:"Save your carts, lists, and history across all your devices.", es:"Guarda tus carritos, listas e historial en todos tus dispositivos."},
+  authSignupSub:    {en:"Free to start. Your carts and history sync across devices.", es:"Gratis para empezar. Todo se sincroniza entre dispositivos."},
+  email:            {en:"Email", es:"Correo"},
+  password:         {en:"Password", es:"Contraseña"},
+  doSignin:         {en:"Sign in", es:"Entrar"},
+  doSignup:         {en:"Create account", es:"Crear cuenta"},
+  switchToSignup:   {en:"New here? Create an account", es:"¿Nuevo? Crea una cuenta"},
+  switchToSignin:   {en:"Already have an account? Sign in", es:"¿Ya tienes cuenta? Entra"},
+  forgot:           {en:"Forgot password?", es:"¿Olvidaste tu contraseña?"},
+  keepWithout:      {en:"Keep using without an account", es:"Seguir sin cuenta"},
+  authConfig:       {en:"⚠ Connect Supabase to enable accounts (see code).", es:"⚠ Conecta Supabase para activar cuentas (ver código)."},
+  working:          {en:"Working…", es:"Procesando…"},
+  yourAccount:      {en:"Your account", es:"Tu cuenta"},
+  proActiveStatus:  {en:"⭐ Cart Tally Pro — active", es:"⭐ Cart Tally Pro — activo"},
+  freePlanStatus:   {en:"Free plan", es:"Plan gratis"},
+  close:            {en:"Close", es:"Cerrar"},
+  signOut:          {en:"Sign out", es:"Cerrar sesión"},
+  // settings
+  budgetTaxTitle:   {en:"Budget & tax", es:"Presupuesto e impuesto"},
+  budgetCap:        {en:"Budget cap (leave blank for none)", es:"Límite de presupuesto (vacío = ninguno)"},
+  taxRateLbl:       {en:"Sales tax rate %", es:"Tasa de impuesto %"},
+  cancel:           {en:"Cancel", es:"Cancelar"},
+  save:             {en:"Save", es:"Guardar"},
+  language:         {en:"Language", es:"Idioma"},
+  // item editor
+  editSavedItem:    {en:"Edit saved item", es:"Editar artículo"},
+  saveNewItem:      {en:"Save a new item", es:"Guardar artículo nuevo"},
+  name:             {en:"Name", es:"Nombre"},
+  usualPrice:       {en:"Usual price", es:"Precio habitual"},
+  taxableQ:         {en:"Taxable?", es:"¿Con impuesto?"},
+  taxYes:           {en:"Yes — apply tax", es:"Sí — aplicar impuesto"},
+  taxNo:            {en:"No tax", es:"Sin impuesto"},
+  removeBtn:        {en:"Remove", es:"Quitar"},
+  // recat
+  moveCategory:     {en:"Move to category", es:"Mover a categoría"},
+  category:         {en:"Category", es:"Categoría"},
+  move:             {en:"Move", es:"Mover"},
+  // lists
+  savedListsTitle:  {en:"💾 Saved lists", es:"💾 Listas guardadas"},
+  saveCurrentList:  {en:"Save current cart as a list", es:"Guardar carrito como lista"},
+  noLists:          {en:"No saved lists yet.<br>Build a cart, then tap \"Save current cart as a list.\"", es:"No hay listas todavía.<br>Arma un carrito y toca \"Guardar carrito como lista.\""},
+  load:             {en:"Load", es:"Cargar"},
+  del:              {en:"Delete", es:"Eliminar"},
+  // history
+  tripsAnalytics:   {en:"📊 Trips & analytics", es:"📊 Compras y análisis"},
+  noTrips:          {en:"No trips yet.<br>Finish a shopping trip to start building history, spend charts, and price tracking.", es:"No hay compras todavía.<br>Finaliza una compra para empezar tu historial, gráficas y precios."},
+  trips:            {en:"Trips", es:"Compras"},
+  avgTrip:          {en:"Avg trip", es:"Promedio"},
+  totalSpent:       {en:"Total spent", es:"Total gastado"},
+  spendPerTrip:     {en:"Spend per trip", es:"Gasto por compra"},
+  topCategories:    {en:"Top categories (all trips)", es:"Categorías principales (todas)"},
+  priceHistory:     {en:"Price history", es:"Historial de precios"},
+  pricePoints:      {en:"price points", es:"puntos de precio"},
+  recentTrips:      {en:"Recent trips · tap to manage", es:"Compras recientes · toca para gestionar"},
+  // fuel
+  fuelTitle:        {en:"⛽ Fuel log", es:"⛽ Registro de gasolina"},
+  gallons:          {en:"Gallons", es:"Galones"},
+  pricePerGal:      {en:"Price / gal", es:"Precio / gal"},
+  totalDollar:      {en:"Total $", es:"Total $"},
+  odometer:         {en:"Odometer", es:"Odómetro"},
+  odometerMpg:      {en:"Odometer", es:"Odómetro"},
+  forMpg:           {en:"(for MPG)", es:"(para MPG)"},
+  scanGasReceipt:   {en:"📷 Scan gas receipt", es:"📷 Escanear recibo de gas"},
+  addFillup:        {en:"Add fill-up", es:"Agregar carga"},
+  fillups:          {en:"Fill-ups", es:"Cargas"},
+  avgMpg:           {en:"Avg MPG", es:"MPG prom."},
+  avgPgal:          {en:"Avg $/gal", es:"$/gal prom."},
+  noFuel:           {en:"No fill-ups yet.<br>Add your first one above. Enter the odometer each time to start seeing MPG.", es:"No hay cargas todavía.<br>Agrega la primera arriba. Ingresa el odómetro cada vez para ver el MPG."},
+  ppgTrend:         {en:"Price / gallon trend", es:"Tendencia precio / galón"},
+  monthlyFuelSpend: {en:"Monthly fuel spend", es:"Gasto mensual en gasolina"},
+  now:              {en:"now", es:"ahora"},
+  editFillup:       {en:"Edit fill-up", es:"Editar carga"},
+  date:             {en:"Date", es:"Fecha"},
+  // trip edit
+  manageTrip:       {en:"Manage trip", es:"Gestionar compra"},
+  tripName:         {en:"Trip name", es:"Nombre de compra"},
+  // scanner
+  scanTitle:        {en:"📷 Scan a receipt", es:"📷 Escanear un recibo"},
+  scanIntro:        {en:"Take a photo of your receipt — Cart Tally reads the items, then you review and edit before adding. Works best on a flat, well-lit receipt.", es:"Toma una foto del recibo — Cart Tally lee los artículos y luego revisas y editas antes de agregar. Funciona mejor con un recibo plano y bien iluminado."},
+  takePhoto:        {en:"📸 Take photo or choose from album", es:"📸 Tomar foto o elegir del álbum"},
+  readingReceipt:   {en:"Reading receipt…", es:"Leyendo recibo…"},
+  reviewEdit:       {en:"Review & edit — fix anything wrong, then add.", es:"Revisa y edita — corrige lo que esté mal y agrega."},
+  addMissed:        {en:"+ Add a missed item", es:"+ Agregar artículo faltante"},
+  addToCart:        {en:"Add to cart", es:"Agregar al carrito"},
+  scanNone:         {en:"No items detected automatically.<br>Add them by hand below, or cancel and try a clearer photo.", es:"No se detectaron artículos.<br>Agrégalos a mano abajo, o cancela e intenta con una foto más clara."},
+  prefilled:        {en:"Prefilled from receipt — check the numbers, then add your odometer for MPG.", es:"Llenado del recibo — revisa los números y agrega el odómetro para el MPG."},
+  scanFailNums:     {en:"Couldn't read the numbers — enter them by hand, or try a clearer photo.", es:"No se pudieron leer los números — ingrésalos a mano o usa una foto más clara."},
+  scanFailImg:      {en:"Couldn't read that image. Try a flatter, brighter photo.", es:"No se pudo leer la imagen. Usa una foto más plana y clara."},
+  // report
+  reportPrint:      {en:"🖨 Print / PDF", es:"🖨 Imprimir / PDF"},
+  reportTitle:      {en:"Monthly Spending Report", es:"Reporte Mensual de Gastos"},
+  reportTotalMonth: {en:"Total spent this month", es:"Total gastado este mes"},
+  groceriesLbl:     {en:"Groceries", es:"Despensa"},
+  fuelLbl:          {en:"Fuel", es:"Gasolina"},
+  secGroceries:     {en:"🛒 Groceries", es:"🛒 Despensa"},
+  secFuel:          {en:"⛽ Fuel", es:"⛽ Gasolina"},
+  noGroceriesMonth: {en:"No grocery trips this month.", es:"No hubo compras de despensa este mes."},
+  noFuelMonth:      {en:"No fuel logged this month.", es:"No se registró gasolina este mes."},
+  spendByCategory:  {en:"Spending by category", es:"Gasto por categoría"},
+  allTrips:         {en:"All trips", es:"Todas las compras"},
+  fillupsLbl:       {en:"Fill-ups", es:"Cargas"},
+  generatedBy:      {en:"Generated by Cart Tally", es:"Generado por Cart Tally"},
+  vs:               {en:"vs", es:"vs"},
+  noDataReport:     {en:"No trips or fuel logged yet.<br>Finish a shopping trip or add a fill-up, then come back for your monthly report.", es:"No hay compras ni gasolina todavía.<br>Finaliza una compra o agrega una carga y vuelve por tu reporte mensual."},
+  // alerts / confirms
+  cartEmptyAlert:   {en:"Your cart is empty — add some items first.", es:"Tu carrito está vacío — agrega artículos primero."},
+  addItemsFirst:    {en:"Add items first.", es:"Agrega artículos primero."},
+  emptyCart2:       {en:"Your cart is empty.", es:"Tu carrito está vacío."},
+  nameThisList:     {en:"Name this list", es:"Nombra esta lista"},
+  listNameLbl:      {en:"List name", es:"Nombre de lista"},
+  listNamePh:       {en:"e.g. Weekly groceries", es:"ej. Despensa semanal"},
+  renameList:       {en:"Rename list", es:"Renombrar lista"},
+  finishTripTitle:  {en:"Finish trip", es:"Finalizar compra"},
+  tripNameOpt:      {en:"Trip name (optional)", es:"Nombre de compra (opcional)"},
+  tripNamePh:       {en:"e.g. Safeway run", es:"ej. Compra Safeway"},
+  replaceCart:      {en:"Replace your current cart with this list?", es:"¿Reemplazar tu carrito actual con esta lista?"},
+  deleteListQ:      {en:"Delete this list?", es:"¿Eliminar esta lista?"},
+  savedAs:          {en:"Saved", es:"Guardado"},
+  needNamePrice:    {en:"Add at least one item with a name and price.", es:"Agrega al menos un artículo con nombre y precio."},
+  deleteFillupQ:    {en:"Delete this fill-up?", es:"¿Eliminar esta carga?"},
+  needTotalOrBoth:  {en:"Enter the total, or gallons and price per gallon.", es:"Ingresa el total, o galones y precio por galón."},
+  deleteTripQ:      {en:"Delete this trip? Its spending and price history will be removed.", es:"¿Eliminar esta compra? Se borrarán sus gastos e historial de precios."},
+  libNotLoaded:    {en:"The text-reader library didn't load. Check your connection and try again.", es:"La librería de lectura no cargó. Revisa tu conexión e intenta de nuevo."},
+  stripeNotConnected:{en:"Stripe checkout isn't connected yet.\n\nAdd your $2.99/mo Payment Link to STRIPE_PAYMENT_LINK in the code, plus a backend to verify the subscription, to go live.\n\nFor now, use \u201cUnlock for testing\u201d to try the Pro features.", es:"El pago de Stripe aún no está conectado.\n\nAgrega tu enlace de pago de $2.99/mes en STRIPE_PAYMENT_LINK en el código, más un backend para verificar la suscripción.\n\nPor ahora usa \u201cDesbloquear para probar\u201d."},
+  resetSent:        {en:"Password reset link sent to", es:"Enlace para restablecer contraseña enviado a"},
+  enterEmailFirst:  {en:"Enter your email above first, then tap reset.", es:"Ingresa tu correo arriba primero, luego toca restablecer."},
+  enterEmailPass:   {en:"Enter your email and password.", es:"Ingresa tu correo y contraseña."},
+  passMin:          {en:"Password must be at least 6 characters.", es:"La contraseña debe tener al menos 6 caracteres."},
+  somethingWrong:   {en:"Something went wrong. Please try again.", es:"Algo salió mal. Intenta de nuevo."},
+  accountsNotReady: {en:"Accounts aren't connected yet. Add your Supabase URL and key in the code.", es:"Las cuentas aún no están conectadas. Agrega tu URL y clave de Supabase en el código."},
+};
+
+function t(key){
+  const e = I18N[key];
+  if(!e) return key;
+  return e[lang] || e.en;
+}
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    el.innerHTML = t(el.getAttribute("data-i18n"));
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    el.placeholder = t(el.getAttribute("data-i18n-ph"));
+  });
+  // dynamic UI
+  reflectAuth();
+  if(typeof renderProSection==="function") renderProSection();
+  if(typeof render==="function") render();
+  const lb = $("langBtn"); if(lb) lb.textContent = lang==="en" ? "🌐 ES" : "🌐 EN";
+  const tu = $("testUnlockBtn"); if(tu) tu.textContent = isPro ? t("lockTest") : t("unlockTest");
+}
+function setLang(l){
+  lang = l;
+  try{ localStorage.setItem("cartTally.lang", l); }catch(e){}
+  applyLang();
+}
 
 /* ---------- persistence ----------
    Logged out → localStorage (per device).
@@ -936,8 +1173,69 @@ function classify(name){
     if(!list) continue;
     for(const kw of list){ if(n.includes(kw)) return cat; }
   }
+  // try Spanish keywords
+  for(const cat of CATEGORIES){
+    const list = KEYWORDS_ES[cat];
+    if(!list) continue;
+    for(const kw of list){ if(n.includes(kw)) return cat; }
+  }
   return OTHER;
 }
+
+/* Spanish display names for categories (keys stay English for data integrity) */
+const CAT_ES = {
+  "Produce":"Frutas y Verduras","Fruits":"Frutas","Vegetables":"Verduras","Dairy & Eggs":"Lácteos y Huevos",
+  "Bakery & Bread":"Panadería","Meat":"Carne","Seafood":"Mariscos","Deli & Prepared Foods":"Comida Preparada",
+  "Pantry":"Despensa","Breakfast":"Desayuno","Frozen Foods":"Congelados","Snacks":"Botanas",
+  "Candy & Sweets":"Dulces","Beverages":"Bebidas","Coffee & Tea":"Café y Té","Alcohol":"Alcohol",
+  "Baby":"Bebé","Pet Supplies":"Mascotas","Beauty & Personal Care":"Cuidado Personal",
+  "Health & Pharmacy":"Salud y Farmacia","Household Cleaning":"Limpieza","Paper Products":"Productos de Papel",
+  "Laundry":"Lavandería","Kitchen Supplies":"Cocina","Home Essentials":"Esenciales del Hogar",
+  "Office & School Supplies":"Oficina y Escuela","Electronics":"Electrónicos","Automotive":"Automotriz",
+  "Garden & Outdoor":"Jardín","Seasonal & Holiday":"Temporada","Party Supplies":"Fiesta",
+  "Clothing & Accessories":"Ropa","Toys & Games":"Juguetes","Sporting Goods":"Deportes",
+  "Home Improvement":"Mejoras del Hogar","Hardware & Tools":"Herramientas","Storage & Organization":"Organización",
+  "Floral":"Flores","Tobacco":"Tabaco","Gift Cards":"Tarjetas de Regalo","Miscellaneous / Other":"Otros"
+};
+function catLabel(cat){ return lang==="es" ? (CAT_ES[cat]||cat) : cat; }
+
+/* Spanish item keywords → English category key */
+const KEYWORDS_ES = {
+  "Fruits":["manzana","platano","plátano","banana","naranja","uva","fresa","mango","piña","durazno","pera","kiwi","melon","melón","sandia","sandía","cereza","limon","limón","aguacate","mandarina","toronja","papaya","guayaba"],
+  "Vegetables":["lechuga","espinaca","brocoli","brócoli","coliflor","zanahoria","apio","pepino","tomate","jitomate","papa","cebolla","ajo","chile","calabaza","champinon","champiñon","elote","maiz","maíz","col","esparrago","espárrago","betabel","cilantro","perejil","jengibre","nopal","ejote"],
+  "Dairy & Eggs":["leche","huevo","queso","yogur","yoghurt","mantequilla","crema","cottage","margarina","lacteo","lácteo"],
+  "Bakery & Bread":["pan","bolillo","tortilla","croissant","cuernito","pastel","panque","dona","concha","baguette","pita","galleta dulce"],
+  "Meat":["pollo","res","carne","puerco","cerdo","bistec","molida","tocino","salchicha","jamon","jamón","pavo","cordero","costilla","chuleta","ala","milanesa"],
+  "Seafood":["pescado","salmon","salmón","atun","atún","camaron","camarón","cangrejo","langosta","tilapia","mojarra","mariscos","pulpo"],
+  "Deli & Prepared Foods":["salchichoneria","salchichonería","jamon rebanado","salami","pepperoni","sushi","preparada","rostizado","hummus"],
+  "Breakfast":["cereal","avena","granola","hot cake","hotcake","panqueque","waffle","miel maple","desayuno"],
+  "Pantry":["arroz","pasta","fideo","harina","azucar","azúcar","aceite","vinagre","salsa","catsup","cátsup","mostaza","mayonesa","sal","especia","caldo","sopa","frijol","lenteja","crema de cacahuate","mermelada","miel","levadura","maicena","galleta salada","consome","consomé"],
+  "Frozen Foods":["congelado","helado","paleta","pizza","nieve"],
+  "Snacks":["papas","papitas","frituras","pretzel","palomitas","cacahuate","nuez","botana","totopos"],
+  "Candy & Sweets":["dulce","chocolate","chicle","menta","paleta dulce","caramelo","malvavisco","gomita","dulces"],
+  "Beverages":["refresco","jugo","agua","soda","coca","sprite","gatorade","limonada","bebida","agua mineral","tehuacan"],
+  "Coffee & Tea":["cafe","café","te ","té ","expreso","espresso","capuchino","matcha"],
+  "Alcohol":["cerveza","vino","vodka","whisky","ron","tequila","ginebra","licor","champan","champán","mezcal","brandy"],
+  "Baby":["panal","pañal","toallitas","formula","fórmula","papilla","bebe","bebé","chupon","chupón"],
+  "Pet Supplies":["croquetas","comida perro","comida gato","mascota","arena gato","correa"],
+  "Beauty & Personal Care":["shampoo","champu","champú","acondicionador","jabon","jabón","crema corporal","desodorante","pasta dental","cepillo dental","hilo dental","enjuague bucal","rastrillo","maquillaje","perfume","locion","loción","bloqueador"],
+  "Health & Pharmacy":["vitamina","medicina","medicamento","aspirina","ibuprofeno","paracetamol","venda","curita","suplemento","probiotico","probiótico","tos","gripa","alergia","termometro","termómetro","farmacia","melatonina","antiacido","antiácido"],
+  "Household Cleaning":["limpiador","cloro","desinfectante","esponja","fabuloso","pinol","pino","jabon trastes","jabón trastes","lavatrastes","limpieza"],
+  "Paper Products":["papel higienico","papel higiénico","servilleta","panuelo","pañuelo","toalla de papel","papel de bano","papel de baño"],
+  "Laundry":["detergente","suavizante","ariel","downy","quitamanchas","lavanderia","lavandería"],
+  "Kitchen Supplies":["aluminio","plastico adherente","plástico adherente","bolsa ziploc","bolsa basura","papel encerado","tupper","contenedor"],
+  "Home Essentials":["foco","pila","bateria","batería","vela","ambientador","cerillos"],
+  "Office & School Supplies":["pluma","lapiz","lápiz","cuaderno","engrapadora","cinta","marcador","folder","carpeta","pegamento","tijeras","sobre"],
+  "Electronics":["cargador","cable","audifono","audífono","usb","hdmi","raton","ratón","teclado","funda"],
+  "Automotive":["aceite motor","limpiaparabrisas","anticongelante","automotriz"],
+  "Garden & Outdoor":["tierra","abono","fertilizante","manguera","jardin","jardín","maceta","carbon","carbón","asador"],
+  "Party Supplies":["globo","fiesta","confeti","piñata","pinata"],
+  "Clothing & Accessories":["camisa","calcetin","calcetín","calzon","calzón","gorra","guante","bufanda","ropa","chamarra","pantalon","pantalón","playera"],
+  "Toys & Games":["juguete","juego","rompecabezas","muneca","muñeca","pelota"],
+  "Floral":["flor","ramo","rosa","tulipan","tulipán","flores","planta"],
+  "Tobacco":["cigarro","cigarrillo","tabaco","puro","vape"],
+  "Gift Cards":["tarjeta regalo","tarjeta de regalo"]
+};
 
 /* ---------- render ---------- */
 function render(){
@@ -961,7 +1259,7 @@ function render(){
   });
   const addChip = document.createElement("button");
   addChip.className = "chip add";
-  addChip.innerHTML = `<span>+ Save item</span>`;
+  addChip.innerHTML = `<span>${t("saveItem")}</span>`;
   addChip.onclick = ()=> openEdit(-1);
   chips.appendChild(addChip);
 
@@ -969,7 +1267,7 @@ function render(){
   const wrap = $("cart");
   wrap.innerHTML = "";
   if(cart.length === 0){
-    wrap.innerHTML = `<div class="empty">Nothing here yet.<br>Tap a saved item or add one below as you drop it in the cart.</div>`;
+    wrap.innerHTML = `<div class="empty">${t("cartEmpty")}</div>`;
     updateTotals();
     persist();
     return;
@@ -990,7 +1288,7 @@ function render(){
     head.innerHTML = `
       <button class="cat-toggle" data-cat="${esc(cat)}">
         <span class="caret">▾</span>
-        <span class="cat-name">${esc(cat)}</span>
+        <span class="cat-name">${esc(catLabel(cat))}</span>
         <span class="cat-pill">${catCount}</span>
       </button>
       <span class="cat-sub">${money(catTotal)}</span>`;
@@ -1011,11 +1309,11 @@ function render(){
         <button class="qbtn" data-act="inc">+</button>
         <div class="body">
           <div class="nm">${esc(it.name)}</div>
-          <div class="det">${money(it.price)} each${it.tax?" · taxable":""} · <button class="recat" data-act="cat">${esc(it.cat)}</button></div>
+          <div class="det">${money(it.price)} ${t("each")}${it.tax?" · "+t("taxable"):""} · <button class="recat" data-act="cat">${esc(catLabel(it.cat))}</button></div>
         </div>
         <div style="text-align:right">
           <div class="line">${money(lineTotal)}</div>
-          <button class="del" data-act="del">remove</button>
+          <button class="del" data-act="del">${t("remove")}</button>
         </div>`;
       el.querySelector('[data-act="dec"]').onclick = ()=>{ it.qty--; if(it.qty<=0) cart.splice(i,1); render(); };
       el.querySelector('[data-act="inc"]').onclick = ()=>{ it.qty++; render(); };
@@ -1077,7 +1375,7 @@ function updateTotals(){
     if(over){
       remEl.textContent = money(0);
       $("budgetOver").classList.add("on");
-      $("overTxt").textContent = "Over by " + money(-left);
+      $("overTxt").textContent = t("overByLabel") + " " + money(-left);
     } else {
       remEl.textContent = money(left);
       remEl.classList.toggle("warn", pct >= 80);
@@ -1122,10 +1420,10 @@ function renderProSection(){
     card.className = "pro-card" + (isPro ? " unlocked" : "");
     card.innerHTML = `
       <div class="pro-lock">${isPro ? "✓" : "🔒"}</div>
-      <div class="pro-badge ${isPro?"live":""}">${isPro ? "Pro · Active" : "Pro · Tap to preview"}</div>
-      <div class="pro-title">${f.icon} ${f.title}</div>
+      <div class="pro-badge ${isPro?"live":""}">${isPro ? t("proActiveBadge") : t("proTapPreview")}</div>
+      <div class="pro-title">${f.icon} ${t("f_"+f.key)}</div>
       <div class="pro-teaser">${f.teaser}</div>
-      ${isPro ? `<div class="pro-open-hint">Open →</div>` : ""}`;
+      ${isPro ? `<div class="pro-open-hint">${t("open")}</div>` : ""}`;
     card.onclick = ()=>{
       if(!isPro){ openPro(); return; }
       if(f.key === "scan") openScanner();
@@ -1138,7 +1436,7 @@ function renderProSection(){
   });
 
   // header + CTA reflect state
-  $("proHeading").innerHTML = isPro ? "⭐ Cart Tally Pro · Active" : "⭐ Cart Tally Pro";
+  $("proHeading").innerHTML = isPro ? t("proActive") : t("proHeading");
   $("proCtaWide").style.display = isPro ? "none" : "block";
 
   // cart action buttons: mark pro-enabled
@@ -1154,12 +1452,12 @@ $("upgradeBtn").onclick = ()=>{
   if(STRIPE_PAYMENT_LINK){
     window.location.href = STRIPE_PAYMENT_LINK;
   } else {
-    alert("Stripe checkout isn't connected yet.\n\nAdd your $2.99/mo Payment Link to STRIPE_PAYMENT_LINK in the code, plus a backend to verify the subscription, to go live.\n\nFor now, use \u201cUnlock for testing\u201d to try the Pro features.");
+    alert(t("stripeNotConnected"));
   }
 };
 $("testUnlockBtn").onclick = ()=>{
   isPro = !isPro;
-  $("testUnlockBtn").textContent = isPro ? "🔒 Lock again (dev)" : "🔓 Unlock for testing (dev)";
+  $("testUnlockBtn").textContent = isPro ? t("lockTest") : t("unlockTest");
   $("proModal").classList.remove("on");
   renderProSection();
   persist();
@@ -1170,7 +1468,7 @@ function openLists(){
   const body = $("listsBody");
   body.innerHTML = "";
   if(savedCarts.length === 0){
-    body.innerHTML = `<div class="pro-empty">No saved lists yet.<br>Build a cart, then tap "Save current cart as a list."</div>`;
+    body.innerHTML = `<div class="pro-empty">${t("noLists")}</div>`;
   } else {
     savedCarts.slice().reverse().forEach(list=>{
       const total = list.items.reduce((s,it)=>s+it.price*it.qty,0);
@@ -1182,12 +1480,12 @@ function openLists(){
           <div class="lr-sub">${list.items.length} item${list.items.length!==1?"s":""} · ${money(total)}</div>
         </div>
         <div class="lr-acts">
-          <button class="lr-load">Load</button>
-          <button class="lr-del">Delete</button>
+          <button class="lr-load">${t("load")}</button>
+          <button class="lr-del">${t("del")}</button>
         </div>`;
       row.querySelector(".lr-rename").onclick = ()=>{
         $("listsModal").classList.remove("on");
-        promptName("Rename list","List name","List name",(name)=>{
+        promptName(t("renameList"),t("listNameLbl"),t("listNameLbl"),(name)=>{
           list.name = name;
           persist(); openLists();
         });
@@ -1195,13 +1493,13 @@ function openLists(){
         $("nameInput").value = list.name;
       };
       row.querySelector(".lr-load").onclick = ()=>{
-        if(cart.length && !confirm("Replace your current cart with this list?")) return;
+        if(cart.length && !confirm(t("replaceCart"))) return;
         cart = list.items.map(it=>({...it}));
         $("listsModal").classList.remove("on");
         render(); renderProSection();
       };
       row.querySelector(".lr-del").onclick = ()=>{
-        if(!confirm(`Delete "${list.name}"?`)) return;
+        if(!confirm(t("deleteListQ"))) return;
         savedCarts = savedCarts.filter(l=>l.id!==list.id);
         persist(); openLists();
       };
@@ -1213,9 +1511,9 @@ function openLists(){
 $("listsClose").onclick = ()=> $("listsModal").classList.remove("on");
 $("listsModal").addEventListener("click",e=>{ if(e.target.id==="listsModal") $("listsModal").classList.remove("on"); });
 $("saveCurrentAsList").onclick = ()=>{
-  if(cart.length === 0){ alert("Your cart is empty."); return; }
+  if(cart.length === 0){ alert(t("emptyCart2")); return; }
   $("listsModal").classList.remove("on");
-  promptName("Name this list","List name","e.g. Weekly groceries",(name)=>{
+  promptName(t("nameThisList"),t("listNameLbl"),t("listNamePh"),(name)=>{
     savedCarts.push({id:Date.now(), name, items:cart.map(it=>({...it})), ts:Date.now()});
     persist(); openLists();
   });
@@ -1224,22 +1522,22 @@ $("saveCurrentAsList").onclick = ()=>{
 /* cart action buttons */
 $("saveCartBtn").onclick = ()=>{
   if(!isPro){ openPro(); return; }
-  if(cart.length === 0){ alert("Add items first."); return; }
+  if(cart.length === 0){ alert(t("addItemsFirst")); return; }
   promptName("Save as list","List name","e.g. Weekly groceries",(name)=>{
     savedCarts.push({id:Date.now(), name, items:cart.map(it=>({...it})), ts:Date.now()});
     persist();
-    alert(`Saved "${name}".`);
+    alert(t("savedAs")+": "+name);
   });
 };
 $("finishTripBtn").onclick = ()=>{
   if(!isPro){ openPro(); return; }
-  if(cart.length === 0){ alert("Add items first."); return; }
-  promptName("Finish trip","Trip name (optional)","e.g. Safeway run",(name)=>{
+  if(cart.length === 0){ alert(t("addItemsFirst")); return; }
+  promptName(t("finishTripTitle"),t("tripNameOpt"),t("tripNamePh"),(name)=>{
     let sub=0, taxable=0, count=0; const cats={}; const items=[];
     cart.forEach(it=>{ const lt=it.price*it.qty; sub+=lt; if(it.tax) taxable+=lt; count+=it.qty;
       cats[it.cat]=(cats[it.cat]||0)+lt; items.push({name:it.name,price:it.price,qty:it.qty,cat:it.cat}); });
     const tax=taxable*(taxRate/100);
-    trips.push({id:Date.now(), name:name||"Trip", ts:Date.now(), total:sub+tax, sub, tax, count, cats, items});
+    trips.push({id:Date.now(), name:name||t("finishTripTitle"), ts:Date.now(), total:sub+tax, sub, tax, count, cats, items});
     cart = [];
     persist(); render(); renderProSection();
     openHistory();
@@ -1272,7 +1570,7 @@ function openHistory(){
   const body = $("historyBody");
   body.innerHTML = "";
   if(trips.length === 0){
-    body.innerHTML = `<div class="pro-empty">No trips yet.<br>Finish a shopping trip to start building history, spend charts, and price tracking.</div>`;
+    body.innerHTML = `<div class="pro-empty">${t("noTrips")}</div>`;
     $("historyModal").classList.add("on");
     return;
   }
@@ -1283,9 +1581,9 @@ function openHistory(){
   const avg = sum/trips.length;
   body.innerHTML += `
     <div class="stat-row">
-      <div class="stat"><div class="sk">Trips</div><div class="sv">${trips.length}</div></div>
-      <div class="stat"><div class="sk">Avg trip</div><div class="sv">${money(avg)}</div></div>
-      <div class="stat"><div class="sk">Total spent</div><div class="sv">${money(sum)}</div></div>
+      <div class="stat"><div class="sk">${t("trips")}</div><div class="sv">${trips.length}</div></div>
+      <div class="stat"><div class="sk">${t("avgTrip")}</div><div class="sv">${money(avg)}</div></div>
+      <div class="stat"><div class="sk">${t("totalSpent")}</div><div class="sv">${money(sum)}</div></div>
     </div>`;
 
   // bar chart: last up-to-8 trips
@@ -1298,7 +1596,7 @@ function openHistory(){
     const lbl = (d.getMonth()+1)+"/"+d.getDate();
     bars += `<div class="bc-col"><div class="bc-v">${"$"+Math.round(t.total)}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${lbl}</div></div>`;
   });
-  body.innerHTML += `<div class="chart-lbl">Spend per trip</div><div class="bchart">${bars}</div>`;
+  body.innerHTML += `<div class="chart-lbl">${t("spendPerTrip")}</div><div class="bchart">${bars}</div>`;
 
   // category breakdown across all trips
   const catTotals = {};
@@ -1307,9 +1605,9 @@ function openHistory(){
   const catMax = Math.max(...catArr.map(c=>c[1]),1);
   let cbars = "";
   catArr.forEach(([c,v])=>{
-    cbars += `<div class="catbar"><div class="cb-top"><span class="cb-name">${esc(c)}</span><span class="cb-amt">${money(v)}</span></div><div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`;
+    cbars += `<div class="catbar"><div class="cb-top"><span class="cb-name">${esc(catLabel(c))}</span><span class="cb-amt">${money(v)}</span></div><div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`;
   });
-  body.innerHTML += `<div class="chart-lbl">Top categories (all trips)</div>${cbars}`;
+  body.innerHTML += `<div class="chart-lbl">${t("topCategories")}</div>${cbars}`;
 
   // price history: pick the item with the most price points
   const itemPrices = {};
@@ -1322,16 +1620,17 @@ function openHistory(){
     const first = tracked.pts[0].price, last = tracked.pts[tracked.pts.length-1].price;
     const chg = first ? Math.round(((last-first)/first)*100) : 0;
     const arrow = chg>0?"↑":chg<0?"↓":"→";
-    body.innerHTML += `<div class="chart-lbl">Price history · ${esc(tracked.name)}</div>
-      <div class="trip-row"><span class="tr-d">${tracked.pts.length} price points</span>
+    body.innerHTML += `<div class="chart-lbl">${t("priceHistory")} · ${esc(tracked.name)}</div>
+      <div class="trip-row"><span class="tr-d">${tracked.pts.length} ${t("pricePoints")}</span>
       <span class="tr-t">${money(last)} <span style="color:var(--muted);font-weight:600">(${arrow}${Math.abs(chg)}%)</span></span></div>`;
   }
 
   // recent trips list
-  body.innerHTML += `<div class="chart-lbl">Recent trips · tap to manage</div>`;
+  body.innerHTML += `<div class="chart-lbl">${t("recentTrips")}</div>`;
+  const itemsLbl = t("items").toLowerCase();
   trips.slice().reverse().slice(0,10).forEach(t=>{
     const d = new Date(t.ts);
-    body.innerHTML += `<div class="trip-row tappable" data-trip-id="${t.id}"><span class="tr-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="tr-t">${money(t.total)} <span class="tr-edit">›</span></span></div>`;
+    body.innerHTML += `<div class="trip-row tappable" data-trip-id="${t.id}"><span class="tr-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} ${itemsLbl}</span><span class="tr-t">${money(t.total)} <span class="tr-edit">›</span></span></div>`;
   });
 
   // wire up trip taps (delegated, since rows are built via innerHTML)
@@ -1347,25 +1646,25 @@ $("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal")
 /* ---- edit / delete a trip ---- */
 let tripEditId = null;
 function openTripEdit(id){
-  const t = trips.find(x=>x.id===id);
-  if(!t) return;
+  const tr = trips.find(x=>x.id===id);
+  if(!tr) return;
   tripEditId = id;
-  const d = new Date(t.ts);
-  $("teSummary").textContent = `${d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})} · ${t.count} items · ${money(t.total)}`;
-  $("teName").value = t.name || "";
+  const d = new Date(tr.ts);
+  $("teSummary").textContent = `${d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})} · ${tr.count} ${t("items").toLowerCase()} · ${money(tr.total)}`;
+  $("teName").value = tr.name || "";
   $("tripEditModal").classList.add("on");
 }
 $("teCancel").onclick = ()=> $("tripEditModal").classList.remove("on");
 $("tripEditModal").addEventListener("click",e=>{ if(e.target.id==="tripEditModal") $("tripEditModal").classList.remove("on"); });
 $("teDelete").onclick = ()=>{
-  if(!confirm("Delete this trip? Its spending and price history will be removed.")) return;
+  if(!confirm(t("deleteTripQ"))) return;
   trips = trips.filter(x=>x.id!==tripEditId);
   $("tripEditModal").classList.remove("on");
   persist(); openHistory();
 };
 $("teSave").onclick = ()=>{
-  const t = trips.find(x=>x.id===tripEditId);
-  if(t){ t.name = $("teName").value.trim() || "Trip"; }
+  const tr = trips.find(x=>x.id===tripEditId);
+  if(tr){ tr.name = $("teName").value.trim() || t("finishTripTitle"); }
   $("tripEditModal").classList.remove("on");
   persist(); openHistory();
 };
@@ -1383,8 +1682,8 @@ function openReport(){
   const sel = $("reportMonth");
   sel.innerHTML = "";
   if(sorted.length === 0){
-    sel.innerHTML = `<option>No data yet</option>`;
-    $("reportBody").innerHTML = `<div class="scan-none">No trips or fuel logged yet.<br>Finish a shopping trip or add a fill-up, then come back for your monthly report.</div>`;
+    sel.innerHTML = `<option>${t("noDataReport").replace(/<br>/g," ")}</option>`;
+    $("reportBody").innerHTML = `<div class="scan-none">${t("noDataReport")}</div>`;
     $("reportModal").classList.add("on");
     return;
   }
@@ -1424,7 +1723,7 @@ function renderReport(key){
   if(pTrips.length){
     const chg = gPrev ? ((gTotal-gPrev)/gPrev)*100 : 0;
     const up = chg>0;
-    momHtml = `<span class="rp-mom" style="color:${up?'var(--over)':'var(--accent-deep)'}">${up?'▲':'▼'} ${Math.abs(chg).toFixed(0)}% vs ${monthLabel(prevKey)}</span>`;
+    momHtml = `<span class="rp-mom" style="color:${up?'var(--over)':'var(--accent-deep)'}">${up?'▲':'▼'} ${Math.abs(chg).toFixed(0)}% ${t("vs")} ${monthLabel(prevKey)}</span>`;
   }
 
   // category totals
@@ -1433,7 +1732,7 @@ function renderReport(key){
   const catArr = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
   const catMax = Math.max(...catArr.map(c=>c[1]),1);
   const catBars = catArr.map(([c,v])=>`
-    <div class="catbar"><div class="cb-top"><span class="cb-name">${esc(c)}</span><span class="cb-amt">${money(v)} · ${Math.round(v/gTotal*100)}%</span></div>
+    <div class="catbar"><div class="cb-top"><span class="cb-name">${esc(catLabel(c))}</span><span class="cb-amt">${money(v)} · ${Math.round(v/gTotal*100)}%</span></div>
     <div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`).join("");
 
   // per-trip bar chart
@@ -1445,9 +1744,10 @@ function renderReport(key){
   }).join("");
 
   // trip list
+  const itemsLbl2 = t("items").toLowerCase();
   const tripList = tripsSorted.slice().reverse().map(t=>{
     const d=new Date(t.ts);
-    return `<div class="rp-row"><span>${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} items</span><span class="rp-amt">${money(t.total)}</span></div>`;
+    return `<div class="rp-row"><span>${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})} · ${esc(t.name)} · ${t.count} ${itemsLbl2}</span><span class="rp-amt">${money(t.total)}</span></div>`;
   }).join("");
 
   // ---- fuel summary ----
@@ -1479,46 +1779,46 @@ function renderReport(key){
   let html = `
     <div class="rp-doc">
       <div class="rp-head">
-        <div class="rp-title">Monthly Spending Report</div>
+        <div class="rp-title">${t("reportTitle")}</div>
         <div class="rp-month">${monthLabel(key)}</div>
       </div>
 
       <div class="rp-bigstat">
-        <div class="rp-bs-k">Total spent this month</div>
+        <div class="rp-bs-k">${t("reportTotalMonth")}</div>
         <div class="rp-bs-v">${money(grand)}</div>
-        <div class="rp-bs-sub">Groceries ${money(gTotal)} · Fuel ${money(fTotal)}</div>
+        <div class="rp-bs-sub">${t("groceriesLbl")} ${money(gTotal)} · ${t("fuelLbl")} ${money(fTotal)}</div>
       </div>`;
 
   // GROCERIES section
-  html += `<div class="rp-sec-title">🛒 Groceries</div>`;
+  html += `<div class="rp-sec-title">${t("secGroceries")}</div>`;
   if(mTrips.length === 0){
-    html += `<div class="rp-empty">No grocery trips this month.</div>`;
+    html += `<div class="rp-empty">${t("noGroceriesMonth")}</div>`;
   } else {
     html += `<div class="rp-stats">
-        <div class="rp-stat"><div class="rp-sk">Spent</div><div class="rp-sv">${money(gTotal)}</div>${momHtml}</div>
-        <div class="rp-stat"><div class="rp-sk">Trips</div><div class="rp-sv">${mTrips.length}</div></div>
-        <div class="rp-stat"><div class="rp-sk">Avg trip</div><div class="rp-sv">${money(gAvg)}</div></div>
+        <div class="rp-stat"><div class="rp-sk">${t("spent")}</div><div class="rp-sv">${money(gTotal)}</div>${momHtml}</div>
+        <div class="rp-stat"><div class="rp-sk">${t("trips")}</div><div class="rp-sv">${mTrips.length}</div></div>
+        <div class="rp-stat"><div class="rp-sk">${t("avgTrip")}</div><div class="rp-sv">${money(gAvg)}</div></div>
       </div>
-      <div class="rp-chart-lbl">Spending by category</div>${catBars}
-      <div class="rp-chart-lbl">Spend per trip</div><div class="bchart">${tripBars}</div>
-      <div class="rp-chart-lbl">All trips</div>${tripList}`;
+      <div class="rp-chart-lbl">${t("spendByCategory")}</div>${catBars}
+      <div class="rp-chart-lbl">${t("spendPerTrip")}</div><div class="bchart">${tripBars}</div>
+      <div class="rp-chart-lbl">${t("allTrips")}</div>${tripList}`;
   }
 
   // FUEL section
-  html += `<div class="rp-sec-title">⛽ Fuel</div>`;
+  html += `<div class="rp-sec-title">${t("secFuel")}</div>`;
   if(mFuel.length === 0){
-    html += `<div class="rp-empty">No fuel logged this month.</div>`;
+    html += `<div class="rp-empty">${t("noFuelMonth")}</div>`;
   } else {
     html += `<div class="rp-stats">
-        <div class="rp-stat"><div class="rp-sk">Spent</div><div class="rp-sv">${money(fTotal)}</div></div>
-        <div class="rp-stat"><div class="rp-sk">Gallons</div><div class="rp-sv">${fGal.toFixed(1)}</div></div>
-        ${avgMpg?`<div class="rp-stat"><div class="rp-sk">Avg MPG</div><div class="rp-sv">${avgMpg.toFixed(1)}</div></div>`:``}
-        ${avgPpg?`<div class="rp-stat"><div class="rp-sk">Avg $/gal</div><div class="rp-sv">$${avgPpg.toFixed(2)}</div></div>`:``}
+        <div class="rp-stat"><div class="rp-sk">${t("spent")}</div><div class="rp-sv">${money(fTotal)}</div></div>
+        <div class="rp-stat"><div class="rp-sk">${t("gallons")}</div><div class="rp-sv">${fGal.toFixed(1)}</div></div>
+        ${avgMpg?`<div class="rp-stat"><div class="rp-sk">${t("avgMpg")}</div><div class="rp-sv">${avgMpg.toFixed(1)}</div></div>`:``}
+        ${avgPpg?`<div class="rp-stat"><div class="rp-sk">${t("avgPgal")}</div><div class="rp-sv">$${avgPpg.toFixed(2)}</div></div>`:``}
       </div>
-      <div class="rp-chart-lbl">Fill-ups</div>${fuelList}`;
+      <div class="rp-chart-lbl">${t("fillupsLbl")}</div>${fuelList}`;
   }
 
-  html += `<div class="rp-foot">Generated by Cart Tally · ${new Date().toLocaleDateString()}</div></div>`;
+  html += `<div class="rp-foot">${t("generatedBy")} · ${new Date().toLocaleDateString()}</div></div>`;
 
   $("reportBody").innerHTML = html;
 }
@@ -1542,13 +1842,13 @@ $("scanInput").onchange = async (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
   if(typeof Tesseract === "undefined"){
-    alert("The text-reader library didn't load. Check your connection and try again.");
+    alert(t("libNotLoaded"));
     return;
   }
   // stage 2: progress
   $("scanStage1").style.display = "none";
   $("scanStage2").style.display = "block";
-  $("scanStatus").textContent = "Reading receipt…";
+  $("scanStatus").textContent = t("readingReceipt");
   $("scanBar").style.width = "5%";
 
   try{
@@ -1565,7 +1865,7 @@ $("scanInput").onchange = async (e)=>{
     scanItems = parseReceipt(data.text || "");
     showScanReview();
   }catch(err){
-    $("scanStatus").textContent = "Couldn't read that image. Try a clearer, flatter photo.";
+    $("scanStatus").textContent = t("scanFailImg");
     setTimeout(()=>{ $("scanStage2").style.display="none"; $("scanStage1").style.display="block"; }, 1800);
   }finally{
     $("scanInput").value = "";  // allow re-selecting same file
@@ -1606,7 +1906,7 @@ function renderScanReview(){
   const wrap = $("scanReview");
   wrap.innerHTML = "";
   if(scanItems.length === 0){
-    wrap.innerHTML = `<div class="scan-none">No items detected automatically.<br>Add them by hand below, or cancel and try a clearer photo.</div>`;
+    wrap.innerHTML = `<div class="scan-none">${t("scanNone")}</div>`;
   }
   scanItems.forEach((it,i)=>{
     const row = document.createElement("div");
@@ -1625,12 +1925,12 @@ function renderScanReview(){
 function updateScanCount(){
   const valid = scanItems.filter(it=>it.name.trim() && it.price>0);
   const total = valid.reduce((s,it)=>s+it.price,0);
-  $("scanCount").textContent = `${valid.length} item${valid.length!==1?"s":""} · ${money(total)}`;
+  $("scanCount").textContent = `${valid.length} ${t("items").toLowerCase()} · ${money(total)}`;
 }
 $("scanAddRow").onclick = ()=>{ scanItems.push({name:"",price:0}); renderScanReview(); };
 $("scanConfirm").onclick = ()=>{
   const valid = scanItems.filter(it=>it.name.trim() && it.price>0);
-  if(valid.length === 0){ alert("Add at least one item with a name and price."); return; }
+  if(valid.length === 0){ alert(t("needNamePrice")); return; }
   valid.forEach(it=> addToCart(it.name.trim(), it.price, taxRate>0));
   $("scanModal").classList.remove("on");
 };
@@ -1665,15 +1965,15 @@ $("fuelScanInput").onchange = async (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
   if(typeof Tesseract === "undefined"){
-    alert("The text-reader library didn't load. Check your connection and try again.");
+    alert(t("libNotLoaded"));
     return;
   }
   const st = $("fuelScanStatus");
-  st.style.display = "block"; st.className = "fuel-scan-status"; st.textContent = "Reading receipt… 0%";
+  st.style.display = "block"; st.className = "fuel-scan-status"; st.textContent = t("readingReceipt");
   $("fuelScanBtn").disabled = true;
   try{
     const { data } = await Tesseract.recognize(file, "eng", {
-      logger: m=>{ if(m.status==="recognizing text") st.textContent = "Reading receipt… "+Math.round(m.progress*100)+"%"; }
+      logger: m=>{ if(m.status==="recognizing text") st.textContent = t("readingReceipt")+" "+Math.round(m.progress*100)+"%"; }
     });
     const parsed = parseGasReceipt(data.text || "");
     if(parsed.gallons!=null) $("fGallons").value = parsed.gallons;
@@ -1685,15 +1985,15 @@ $("fuelScanInput").onchange = async (e)=>{
     const got = ["gallons","ppg","total"].filter(k=>parsed[k]!=null).length;
     if(got === 0){
       st.className = "fuel-scan-status warn";
-      st.textContent = "Couldn't read the numbers — enter them by hand, or try a clearer photo.";
+      st.textContent = t("scanFailNums");
     } else {
       st.className = "fuel-scan-status ok";
-      st.textContent = "Prefilled from receipt — check the numbers, then add your odometer for MPG.";
+      st.textContent = t("prefilled");
       setTimeout(()=>$("fOdo").focus(), 200);
     }
   }catch(err){
     st.className = "fuel-scan-status warn";
-    st.textContent = "Couldn't read that image. Try a flatter, brighter photo.";
+    st.textContent = t("scanFailImg");
   }finally{
     $("fuelScanBtn").disabled = false;
     $("fuelScanInput").value = "";
@@ -1738,16 +2038,16 @@ function parseGasReceipt(text){
 $("fuelAdd").onclick = ()=>{
   let g = parseFloat($("fGallons").value);
   let p = parseFloat($("fPpg").value);
-  let t = parseFloat($("fTotal").value);
+  let tot = parseFloat($("fTotal").value);
   const odo = parseFloat($("fOdo").value);
   // need at least total, or gallons+ppg
-  if(isNaN(t) && !isNaN(g) && !isNaN(p)) t = g*p;
-  if(isNaN(t) || t<=0){ alert("Enter the total, or gallons and price per gallon."); return; }
-  if(isNaN(g)) g = (!isNaN(p) && p>0) ? t/p : null;
-  if(isNaN(p)) p = (g && g>0) ? t/g : null;
+  if(isNaN(tot) && !isNaN(g) && !isNaN(p)) tot = g*p;
+  if(isNaN(tot) || tot<=0){ alert(t("needTotalOrBoth")); return; }
+  if(isNaN(g)) g = (!isNaN(p) && p>0) ? tot/p : null;
+  if(isNaN(p)) p = (g && g>0) ? tot/g : null;
   fuelLog.push({
     id:Date.now(), ts:Date.now(),
-    gallons: g||null, ppg: p||null, total:t,
+    gallons: g||null, ppg: p||null, total:tot,
     odometer: isNaN(odo)?null:odo
   });
   persist();
@@ -1771,7 +2071,7 @@ function openFuelEdit(id){
 $("feCancel").onclick = ()=> $("fuelEditModal").classList.remove("on");
 $("fuelEditModal").addEventListener("click",e=>{ if(e.target.id==="fuelEditModal") $("fuelEditModal").classList.remove("on"); });
 $("feDelete").onclick = ()=>{
-  if(!confirm("Delete this fill-up?")) return;
+  if(!confirm(t("deleteFillupQ"))) return;
   fuelLog = fuelLog.filter(x=>x.id!==fuelEditId);
   $("fuelEditModal").classList.remove("on");
   persist(); renderFuel();
@@ -1781,16 +2081,16 @@ $("feSave").onclick = ()=>{
   if(!f) return;
   let g = parseFloat($("feGallons").value);
   let p = parseFloat($("fePpg").value);
-  let t = parseFloat($("feTotal").value);
+  let tot = parseFloat($("feTotal").value);
   const odo = parseFloat($("feOdo").value);
   // resolve missing value from the other two
-  if(isNaN(t) && !isNaN(g) && !isNaN(p)) t = g*p;
-  if(isNaN(t) || t<=0){ alert("Enter the total, or gallons and price per gallon."); return; }
-  if(isNaN(g)) g = (!isNaN(p) && p>0) ? t/p : null;
-  if(isNaN(p)) p = (g && g>0) ? t/g : null;
+  if(isNaN(tot) && !isNaN(g) && !isNaN(p)) tot = g*p;
+  if(isNaN(tot) || tot<=0){ alert(t("needTotalOrBoth")); return; }
+  if(isNaN(g)) g = (!isNaN(p) && p>0) ? tot/p : null;
+  if(isNaN(p)) p = (g && g>0) ? tot/g : null;
   f.gallons = g||null;
   f.ppg = p||null;
-  f.total = t;
+  f.total = tot;
   f.odometer = isNaN(odo) ? null : odo;
   // keep time-of-day but apply chosen date
   if($("feDate").value){
@@ -1840,8 +2140,8 @@ function renderFuel(){
       const coords = pts.map((v,i)=> `${(i*step).toFixed(1)},${(H - ((v-min)/span)*(H-10) - 5).toFixed(1)}`).join(" ");
       trendHtml = `
         <div class="fuel-chart-head">
-          <span class="fch-lbl">Price / gallon trend</span>
-          <span class="fch-chg" style="color:${col}">${arrow} ${Math.abs(chg).toFixed(1)}% · $${last.toFixed(2)} now</span>
+          <span class="fch-lbl">${t("ppgTrend")}</span>
+          <span class="fch-chg" style="color:${col}">${arrow} ${Math.abs(chg).toFixed(1)}% · $${last.toFixed(2)} ${t("now")}</span>
         </div>
         <svg class="fuel-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
           <polyline points="${coords}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
@@ -1866,14 +2166,14 @@ function renderFuel(){
         const lbl = new Date(y, mo-1, 1).toLocaleDateString(undefined,{month:"short"});
         return `<div class="bc-col"><div class="bc-v">$${Math.round(byMonth[m])}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${lbl}</div></div>`;
       }).join("");
-      monthHtml = `<div class="fch-lbl" style="margin-top:14px;display:block">Monthly fuel spend</div><div class="bchart">${bars}</div>`;
+      monthHtml = `<div class="fch-lbl" style="margin-top:14px;display:block">${t("monthlyFuelSpend")}</div><div class="bchart">${bars}</div>`;
     }
 
     stats.innerHTML = `<div class="fuel-stat-row">
-      <div class="fuel-stat"><div class="fk">Fill-ups</div><div class="fv">${sorted.length}</div></div>
-      <div class="fuel-stat"><div class="fk">Total spent</div><div class="fv">${money(totalSpent)}</div></div>
-      ${avgMpg?`<div class="fuel-stat"><div class="fk">Avg MPG</div><div class="fv">${avgMpg.toFixed(1)}</div></div>`:``}
-      ${avgPpg?`<div class="fuel-stat"><div class="fk">Avg $/gal</div><div class="fv">$${avgPpg.toFixed(2)}</div></div>`:``}
+      <div class="fuel-stat"><div class="fk">${t("fillups")}</div><div class="fv">${sorted.length}</div></div>
+      <div class="fuel-stat"><div class="fk">${t("totalSpent")}</div><div class="fv">${money(totalSpent)}</div></div>
+      ${avgMpg?`<div class="fuel-stat"><div class="fk">${t("avgMpg")}</div><div class="fv">${avgMpg.toFixed(1)}</div></div>`:``}
+      ${avgPpg?`<div class="fuel-stat"><div class="fk">${t("avgPgal")}</div><div class="fv">$${avgPpg.toFixed(2)}</div></div>`:``}
     </div>${trendHtml}${monthHtml}`;
   }
 
@@ -1881,7 +2181,7 @@ function renderFuel(){
   const list = $("fuelList");
   list.innerHTML = "";
   if(sorted.length === 0){
-    list.innerHTML = `<div class="scan-none">No fill-ups yet.<br>Add your first one above. Enter the odometer each time to start seeing MPG.</div>`;
+    list.innerHTML = `<div class="scan-none">${t("noFuel")}</div>`;
     return;
   }
   // price change vs previous fill-up (chronological)
@@ -1974,7 +2274,7 @@ function buildReceipt(){
 }
 
 $("printBtn").onclick = ()=>{
-  if(cart.length === 0){ alert("Your cart is empty — add some items first."); return; }
+  if(cart.length === 0){ alert(t("cartEmptyAlert")); return; }
   buildReceipt();
   window.print();
 };
@@ -1986,11 +2286,11 @@ function openRecat(i){
   sel.innerHTML = "";
   CATEGORIES.forEach(c=>{
     const o = document.createElement("option");
-    o.value = c; o.textContent = c;
+    o.value = c; o.textContent = catLabel(c);
     if(c === cart[i].cat) o.selected = true;
     sel.appendChild(o);
   });
-  $("recatTitle").textContent = "Move “" + cart[i].name + "”";
+  $("recatTitle").textContent = t("moveCategory") + ": " + cart[i].name;
   $("recatModal").classList.add("on");
 }
 $("rcCancel").onclick = ()=> $("recatModal").classList.remove("on");
@@ -2022,14 +2322,14 @@ $("addPrice").addEventListener("keydown",e=>{ if(e.key==="Enter") $("addBtn").cl
 function openEdit(i){
   editIndex = i;
   if(i === -1){
-    $("modalTitle").textContent = "Save a new item";
+    $("modalTitle").textContent = t("saveNewItem");
     $("mName").value = $("addName").value.trim();
     $("mPrice").value = $("addPrice").value;
     $("mTax").value = "no";
     $("mRemove").style.display = "none";
   } else {
     const s = saved[i];
-    $("modalTitle").textContent = "Edit saved item";
+    $("modalTitle").textContent = t("editSavedItem");
     $("mName").value = s.name; $("mPrice").value = s.price; $("mTax").value = s.tax?"yes":"no";
     $("mRemove").style.display = "block";
   }
@@ -2053,19 +2353,21 @@ $("mRemove").onclick = ()=>{
 
 /* ---------- settings ---------- */
 $("settingsBtn").onclick = ()=>{
-  $("sBudget").value = budget ?? "";
+  $("sBudget").value = budget ?? ""; if($("sLang")) $("sLang").value = lang;
   $("sTax").value = taxRate || "";
   $("setModal").classList.add("on");
 };
 $("sCancel").onclick = ()=> $("setModal").classList.remove("on");
 $("sSave").onclick = ()=>{
   const b = parseFloat($("sBudget").value);
-  const t = parseFloat($("sTax").value);
+  const tx = parseFloat($("sTax").value);
   budget = isNaN(b) ? null : b;
-  taxRate = isNaN(t) ? 0 : t;
+  taxRate = isNaN(tx) ? 0 : tx;
+  if($("sLang") && $("sLang").value !== lang) setLang($("sLang").value);
   $("setModal").classList.remove("on");
   render();
 };
+$("langBtn").onclick = ()=> setLang(lang === "en" ? "es" : "en");
 
 /* close modal on backdrop tap */
 [["itemModal"],["setModal"]].forEach(([id])=>{
@@ -2087,17 +2389,17 @@ function openAuth(){
 function setAuthMode(mode){
   authMode = mode;
   if(mode === "signup"){
-    $("authTitle").textContent = "Create your account";
-    $("authSub").textContent = "Free to start. Your carts and history sync across devices.";
-    $("authSubmit").textContent = "Create account";
-    $("authSwitch").textContent = "Already have an account? Sign in";
+    $("authTitle").textContent = t("authSignupTitle");
+    $("authSub").textContent = t("authSignupSub");
+    $("authSubmit").textContent = t("doSignup");
+    $("authSwitch").textContent = t("switchToSignin");
     $("authForgot").style.display = "none";
     $("authPassword").autocomplete = "new-password";
   } else {
-    $("authTitle").textContent = "Sign in to Cart Tally";
-    $("authSub").textContent = "Save your carts, lists, and history across all your devices.";
-    $("authSubmit").textContent = "Sign in";
-    $("authSwitch").textContent = "New here? Create an account";
+    $("authTitle").textContent = t("authSigninTitle");
+    $("authSub").textContent = t("authSigninSub");
+    $("authSubmit").textContent = t("doSignin");
+    $("authSwitch").textContent = t("switchToSignup");
     $("authForgot").style.display = "block";
     $("authPassword").autocomplete = "current-password";
   }
@@ -2112,12 +2414,12 @@ $("authModal").addEventListener("click",e=>{ if(e.target.id==="authModal") $("au
 $("authSwitch").onclick = ()=> setAuthMode(authMode === "signin" ? "signup" : "signin");
 
 $("authSubmit").onclick = async ()=>{
-  if(!authReady){ authError("Accounts aren't connected yet. Add your Supabase URL and key in the code."); return; }
+  if(!authReady){ authError(t("accountsNotReady")); return; }
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
-  if(!email || !password){ authError("Enter your email and password."); return; }
-  if(password.length < 6){ authError("Password must be at least 6 characters."); return; }
-  $("authSubmit").disabled = true; $("authSubmit").textContent = "Working…";
+  if(!email || !password){ authError(t("enterEmailPass")); return; }
+  if(password.length < 6){ authError(t("passMin")); return; }
+  $("authSubmit").disabled = true; $("authSubmit").textContent = t("working");
   try{
     let res;
     if(authMode === "signup"){
@@ -2129,7 +2431,7 @@ $("authSubmit").onclick = async ()=>{
     // session change handler will finish the work
     $("authModal").classList.remove("on");
   }catch(err){
-    authError(err.message || "Something went wrong. Please try again.");
+    authError(err.message || t("somethingWrong"));
   }finally{
     $("authSubmit").disabled = false;
     setAuthMode(authMode);
@@ -2137,22 +2439,22 @@ $("authSubmit").onclick = async ()=>{
 };
 
 $("authForgot").onclick = async ()=>{
-  if(!authReady){ authError("Connect Supabase first."); return; }
+  if(!authReady){ authError(t("accountsNotReady")); return; }
   const email = $("authEmail").value.trim();
-  if(!email){ authError("Enter your email above first, then tap reset."); return; }
+  if(!email){ authError(t("enterEmailFirst")); return; }
   try{
     const { error } = await sb.auth.resetPasswordForEmail(email);
     if(error) throw error;
     authError(""); $("authError").style.display="none";
-    alert("Password reset link sent to " + email + " (check your inbox).");
-  }catch(err){ authError(err.message || "Couldn't send reset email."); }
+    alert(t("resetSent") + " " + email);
+  }catch(err){ authError(err.message || t("somethingWrong")); }
 };
 
 /* ---------- Account modal ---------- */
 function openAcct(){
   if(!session) return;
   $("acctEmail").textContent = session.user.email;
-  $("acctStatus").textContent = isPro ? "⭐ Cart Tally Pro — active" : "Free plan";
+  $("acctStatus").textContent = isPro ? t("proActiveStatus") : t("freePlanStatus");
   $("acctModal").classList.add("on");
 }
 $("acctClose").onclick = ()=> $("acctModal").classList.remove("on");
@@ -2163,7 +2465,7 @@ $("acctSignout").onclick = async ()=>{
 };
 
 function reflectAuth(){
-  $("accountBtn").textContent = session ? "👤 Account" : "👤 Sign in";
+  $("accountBtn").textContent = session ? t("account") : t("signIn");
 }
 
 /* react to login / logout */
@@ -2181,7 +2483,19 @@ if(sb){
 
 /* ---------- init ---------- */
 loadState();
-if(isPro) $("testUnlockBtn").textContent = "🔒 Lock again (dev)";
+// language: saved preference → else auto-detect from phone → else English
+(function initLang(){
+  let saved = null;
+  try{ saved = localStorage.getItem("cartTally.lang"); }catch(e){}
+  if(saved === "en" || saved === "es"){
+    lang = saved;
+  } else {
+    const nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    lang = nav.startsWith("es") ? "es" : "en";
+  }
+})();
+if(isPro) $("testUnlockBtn").textContent = t("lockTest");
+applyLang();
 reflectAuth();
 renderProSection();
 render();
