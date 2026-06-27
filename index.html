@@ -267,6 +267,29 @@
   .scan-foot .plan-cta{width:auto;flex:none;padding:13px 20px}
   .scan-none{color:var(--muted);text-align:center;padding:14px 6px;font-size:13.5px;line-height:1.5}
 
+  /* fuel log */
+  .fuel-form{background:var(--panel-2);border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:14px}
+  .fuel-row2{display:flex;gap:9px}
+  .fuel-row2 .field{flex:1}
+  .field .opt{color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0}
+  .fuel-form .plan-cta{width:100%;margin-top:2px}
+  .fuel-scan-btn{width:100%;background:var(--panel);border:1px solid var(--accent-deep);color:var(--accent);
+    border-radius:11px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:11px}
+  .fuel-scan-btn:active{background:var(--panel-2)}
+  .fuel-scan-status{font-size:12.5px;color:var(--muted);text-align:center;margin-bottom:11px;line-height:1.4}
+  .fuel-scan-status.ok{color:var(--accent-deep);font-weight:600}
+  .fuel-scan-status.warn{color:var(--warn);font-weight:600}
+  .fuel-stat-row{display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+  .fuel-stat{flex:1;min-width:80px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:10px 11px}
+  .fuel-stat .fk{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fuel-stat .fv{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:3px}
+  .fuel-fill{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;border-bottom:1px solid var(--line);font-size:13px;gap:10px}
+  .fuel-fill .ff-main{min-width:0}
+  .fuel-fill .ff-d{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .fuel-fill .ff-t{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fuel-fill .ff-mpg{color:var(--accent-deep);font-weight:700;font-size:11.5px}
+  .fuel-fill .ff-del{background:none;border:none;color:var(--over);font-size:16px;cursor:pointer;flex:none;padding:2px 4px}
+
   /* cart action buttons */
   .cart-actions{display:flex;gap:9px;margin-top:14px}
   .ca-btn{
@@ -565,6 +588,34 @@
   </div>
 </div>
 
+<!-- Fuel log modal -->
+<div class="modal-bg" id="fuelModal">
+  <div class="modal pro-modal">
+    <h3>⛽ Fuel log</h3>
+
+    <!-- add a fill-up -->
+    <div class="fuel-form">
+      <input type="file" id="fuelScanInput" accept="image/*" style="display:none">
+      <button class="fuel-scan-btn" id="fuelScanBtn">📷 Scan gas receipt</button>
+      <div class="fuel-scan-status" id="fuelScanStatus" style="display:none"></div>
+      <div class="fuel-row2">
+        <div class="field"><label>Gallons</label><input id="fGallons" inputmode="decimal" placeholder="0.000"></div>
+        <div class="field"><label>Price / gal</label><input id="fPpg" inputmode="decimal" placeholder="0.000"></div>
+      </div>
+      <div class="fuel-row2">
+        <div class="field"><label>Total $</label><input id="fTotal" inputmode="decimal" placeholder="auto"></div>
+        <div class="field"><label>Odometer <span class="opt">(for MPG)</span></label><input id="fOdo" inputmode="decimal" placeholder="miles"></div>
+      </div>
+      <button class="b-save plan-cta" id="fuelAdd">Add fill-up</button>
+    </div>
+
+    <div id="fuelStats"></div>
+    <div id="fuelList"></div>
+
+    <button class="b-cancel plan-close" id="fuelClose">Close</button>
+  </div>
+</div>
+
 <!-- Edit / save item modal -->
 <div class="modal-bg" id="itemModal">
   <div class="modal">
@@ -630,6 +681,7 @@ let recatIndex = -1;         // cart index being recategorized
 let isPro = false;        // unlocked flag (client-side only for now)
 let savedCarts = [];      // [{id, name, items:[...], ts}]
 let trips = [];           // [{id, name, ts, total, sub, tax, count, cats:{cat:amount}}]
+let fuelLog = [];         // [{id, ts, gallons, ppg, total, odometer}]
 
 /* ============================================================
    SUPABASE CONFIG  —  fill these two in after creating your project
@@ -660,7 +712,7 @@ const money = n => "$" + n.toFixed(2);
 const STORE_KEY = "cartTally.v1";
 
 function snapshot(){
-  return { saved, cart, budget, taxRate, isPro, savedCarts, trips };
+  return { saved, cart, budget, taxRate, isPro, savedCarts, trips, fuelLog };
 }
 function applyState(d){
   if(!d) return;
@@ -671,6 +723,7 @@ function applyState(d){
   if(typeof d.isPro === "boolean") isPro = d.isPro;
   if(Array.isArray(d.savedCarts)) savedCarts = d.savedCarts;
   if(Array.isArray(d.trips)) trips = d.trips;
+  if(Array.isArray(d.fuelLog)) fuelLog = d.fuelLog;
 }
 
 let saveTimer = null;
@@ -946,6 +999,8 @@ const PRO_FEATURES = [
    teaser:`<div class="ts-bars"><span style="height:40%"></span><span style="height:65%"></span><span style="height:50%"></span><span style="height:85%"></span><span style="height:70%"></span><span style="height:95%"></span></div><div class="ts-cap">By category, 6-week view</div>`},
   {key:"prices", title:"Price history", icon:"📈", desc:"Track item prices over time",
    teaser:`<svg viewBox="0 0 120 48" preserveAspectRatio="none" class="ts-spark"><polyline points="0,34 20,30 40,36 60,22 80,26 100,14 120,18" fill="none" stroke="var(--accent)" stroke-width="2.5"/></svg><div class="ts-cap">Milk · ↓ 8% this month</div>`},
+  {key:"fuel", title:"Fuel log", icon:"⛽", desc:"Track gas, price/gal & MPG",
+   teaser:`<div class="ts-line"><span class="ts-bar w60"></span><span class="ts-amt">28 MPG</span></div><div class="ts-line"><span class="ts-bar w70"></span><span class="ts-amt">$3.89/gal</span></div><div class="ts-cap">Fill-ups, MPG, price trend</div>`},
 ];
 
 function openPro(){ $("proModal").classList.add("on"); }
@@ -966,6 +1021,7 @@ function renderProSection(){
       if(!isPro){ openPro(); return; }
       if(f.key === "scan") openScanner();
       else if(f.key === "lists") openLists();
+      else if(f.key === "fuel") openFuel();
       else openHistory();   // history, analytics, prices all live in the history modal
     };
     grid.appendChild(card);
@@ -1275,6 +1331,188 @@ $("scanConfirm").onclick = ()=>{
   valid.forEach(it=> addToCart(it.name.trim(), it.price, taxRate>0));
   $("scanModal").classList.remove("on");
 };
+
+/* ---------- Fuel log ---------- */
+function fuelAutoCalc(changed){
+  const g = parseFloat($("fGallons").value);
+  const p = parseFloat($("fPpg").value);
+  const t = parseFloat($("fTotal").value);
+  // if gallons & ppg known → total; if total & gallons → ppg; if total & ppg → gallons
+  if(changed !== "total" && !isNaN(g) && !isNaN(p)){
+    $("fTotal").value = (g*p).toFixed(2);
+  } else if(changed === "total" && !isNaN(t) && !isNaN(g) && g>0){
+    $("fPpg").value = (t/g).toFixed(3);
+  } else if(changed === "total" && !isNaN(t) && !isNaN(p) && p>0){
+    $("fGallons").value = (t/p).toFixed(3);
+  }
+}
+function openFuel(){
+  $("fGallons").value=""; $("fPpg").value=""; $("fTotal").value=""; $("fOdo").value="";
+  renderFuel();
+  $("fuelModal").classList.add("on");
+}
+["fGallons","fPpg"].forEach(id=> $(id).addEventListener("input",()=>fuelAutoCalc(id)));
+$("fTotal").addEventListener("input",()=>fuelAutoCalc("total"));
+$("fuelClose").onclick = ()=> $("fuelModal").classList.remove("on");
+$("fuelModal").addEventListener("click",e=>{ if(e.target.id==="fuelModal") $("fuelModal").classList.remove("on"); });
+
+/* ---- gas receipt scan: OCR → prefill the form ---- */
+$("fuelScanBtn").onclick = ()=> $("fuelScanInput").click();
+$("fuelScanInput").onchange = async (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(typeof Tesseract === "undefined"){
+    alert("The text-reader library didn't load. Check your connection and try again.");
+    return;
+  }
+  const st = $("fuelScanStatus");
+  st.style.display = "block"; st.className = "fuel-scan-status"; st.textContent = "Reading receipt… 0%";
+  $("fuelScanBtn").disabled = true;
+  try{
+    const { data } = await Tesseract.recognize(file, "eng", {
+      logger: m=>{ if(m.status==="recognizing text") st.textContent = "Reading receipt… "+Math.round(m.progress*100)+"%"; }
+    });
+    const parsed = parseGasReceipt(data.text || "");
+    if(parsed.gallons!=null) $("fGallons").value = parsed.gallons;
+    if(parsed.ppg!=null) $("fPpg").value = parsed.ppg;
+    if(parsed.total!=null) $("fTotal").value = parsed.total;
+    // fill any missing third value from the other two
+    fuelAutoCalc(parsed.total!=null ? "total" : "fGallons");
+
+    const got = ["gallons","ppg","total"].filter(k=>parsed[k]!=null).length;
+    if(got === 0){
+      st.className = "fuel-scan-status warn";
+      st.textContent = "Couldn't read the numbers — enter them by hand, or try a clearer photo.";
+    } else {
+      st.className = "fuel-scan-status ok";
+      st.textContent = "Prefilled from receipt — check the numbers, then add your odometer for MPG.";
+      setTimeout(()=>$("fOdo").focus(), 200);
+    }
+  }catch(err){
+    st.className = "fuel-scan-status warn";
+    st.textContent = "Couldn't read that image. Try a flatter, brighter photo.";
+  }finally{
+    $("fuelScanBtn").disabled = false;
+    $("fuelScanInput").value = "";
+  }
+};
+
+/* parse gallons / price-per-gal / total from gas receipt text, with sanity checks */
+function parseGasReceipt(text){
+  const T = text.replace(/[|]/g," ");
+  const lines = T.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const out = { gallons:null, ppg:null, total:null };
+
+  const num = (s)=>{ const m = String(s).match(/(\d+[.,]\d{1,3})/); return m ? parseFloat(m[1].replace(",", ".")) : null; };
+  const sane = { gallons:[0.1,80], ppg:[1.5,9.99], total:[1,500] };
+  const ok = (k,v)=> v!=null && v>=sane[k][0] && v<=sane[k][1];
+
+  for(const line of lines){
+    const L = line.toLowerCase();
+    // gallons
+    if(out.gallons==null && /\b(gallons?|gals?|gal\b|\bg\b)\b/.test(L) && !/price|\/g|per/.test(L)){
+      const v = num(line); if(ok("gallons",v)) out.gallons = v.toFixed(3);
+    }
+    // price per gallon
+    if(out.ppg==null && (/\/\s*g|per\s*gal|price\s*\/?\s*gal|\$\s*\/\s*g|unit\s*price|ppg/.test(L))){
+      const v = num(line); if(ok("ppg",v)) out.ppg = v.toFixed(3);
+    }
+    // total
+    if(out.total==null && /\b(total|amount|sale|sub\s*total|fuel\s*total|grand\s*total)\b/.test(L)){
+      const v = num(line); if(ok("total",v)) out.total = v.toFixed(2);
+    }
+  }
+  // fallback: a lone $-amount on its own line that fits "total" range, if total still missing
+  if(out.total==null){
+    for(const line of lines){
+      const m = line.match(/\$\s*(\d{1,3}[.,]\d{2})\b/);
+      if(m){ const v = parseFloat(m[1].replace(",", ".")); if(ok("total",v)){ out.total = v.toFixed(2); break; } }
+    }
+  }
+  return out;
+}
+
+$("fuelAdd").onclick = ()=>{
+  let g = parseFloat($("fGallons").value);
+  let p = parseFloat($("fPpg").value);
+  let t = parseFloat($("fTotal").value);
+  const odo = parseFloat($("fOdo").value);
+  // need at least total, or gallons+ppg
+  if(isNaN(t) && !isNaN(g) && !isNaN(p)) t = g*p;
+  if(isNaN(t) || t<=0){ alert("Enter the total, or gallons and price per gallon."); return; }
+  if(isNaN(g)) g = (!isNaN(p) && p>0) ? t/p : null;
+  if(isNaN(p)) p = (g && g>0) ? t/g : null;
+  fuelLog.push({
+    id:Date.now(), ts:Date.now(),
+    gallons: g||null, ppg: p||null, total:t,
+    odometer: isNaN(odo)?null:odo
+  });
+  persist();
+  $("fGallons").value=""; $("fPpg").value=""; $("fTotal").value=""; $("fOdo").value="";
+  renderFuel();
+};
+
+function renderFuel(){
+  const sorted = fuelLog.slice().sort((a,b)=>a.ts-b.ts);
+
+  // compute MPG per fill-up (needs previous odometer)
+  const withMpg = sorted.map((f,i)=>{
+    let mpg = null;
+    if(i>0 && f.odometer!=null && sorted[i-1].odometer!=null && f.gallons){
+      const miles = f.odometer - sorted[i-1].odometer;
+      if(miles>0) mpg = miles / f.gallons;
+    }
+    return {...f, mpg};
+  });
+
+  // stats
+  const totalSpent = sorted.reduce((s,f)=>s+f.total,0);
+  const ppgVals = sorted.filter(f=>f.ppg).map(f=>f.ppg);
+  const avgPpg = ppgVals.length ? ppgVals.reduce((a,b)=>a+b,0)/ppgVals.length : null;
+  const mpgVals = withMpg.filter(f=>f.mpg).map(f=>f.mpg);
+  const avgMpg = mpgVals.length ? mpgVals.reduce((a,b)=>a+b,0)/mpgVals.length : null;
+
+  const stats = $("fuelStats");
+  if(sorted.length === 0){
+    stats.innerHTML = "";
+  } else {
+    stats.innerHTML = `<div class="fuel-stat-row">
+      <div class="fuel-stat"><div class="fk">Fill-ups</div><div class="fv">${sorted.length}</div></div>
+      <div class="fuel-stat"><div class="fk">Total spent</div><div class="fv">${money(totalSpent)}</div></div>
+      ${avgMpg?`<div class="fuel-stat"><div class="fk">Avg MPG</div><div class="fv">${avgMpg.toFixed(1)}</div></div>`:``}
+      ${avgPpg?`<div class="fuel-stat"><div class="fk">Avg $/gal</div><div class="fv">$${avgPpg.toFixed(2)}</div></div>`:``}
+    </div>`;
+  }
+
+  // list (newest first)
+  const list = $("fuelList");
+  list.innerHTML = "";
+  if(sorted.length === 0){
+    list.innerHTML = `<div class="scan-none">No fill-ups yet.<br>Add your first one above. Enter the odometer each time to start seeing MPG.</div>`;
+    return;
+  }
+  withMpg.slice().reverse().forEach(f=>{
+    const d = new Date(f.ts);
+    const parts = [];
+    if(f.gallons) parts.push(f.gallons.toFixed(2)+" gal");
+    if(f.ppg) parts.push("$"+f.ppg.toFixed(2)+"/gal");
+    if(f.odometer!=null) parts.push(f.odometer.toLocaleString()+" mi");
+    const row = document.createElement("div");
+    row.className = "fuel-fill";
+    row.innerHTML = `
+      <div class="ff-main">
+        <div>${money(f.total)} ${f.mpg?`<span class="ff-mpg">· ${f.mpg.toFixed(1)} MPG</span>`:``}</div>
+        <div class="ff-d">${d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})} · ${parts.join(" · ")||"—"}</div>
+      </div>
+      <button class="ff-del" title="Remove">×</button>`;
+    row.querySelector(".ff-del").onclick = ()=>{
+      if(!confirm("Delete this fill-up?")) return;
+      fuelLog = fuelLog.filter(x=>x.id!==f.id);
+      persist(); renderFuel();
+    };
+    list.appendChild(row);
+  });
+}
 
 /* ---------- receipt / print ---------- */
 function buildReceipt(){
