@@ -381,6 +381,13 @@
   .bchart .bc-bar{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:3px;transition:height .3s}
   .bchart .bc-x{font-size:9.5px;color:var(--muted);white-space:nowrap}
   .bchart .bc-v{font-size:9.5px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  /* line chart */
+  .linechart{width:100%;height:auto;display:block;margin:2px 0 6px;overflow:visible}
+  .linechart .lc-area{fill:var(--accent);opacity:.12}
+  .linechart .lc-line{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+  .linechart .lc-dot{fill:var(--accent-deep);stroke:var(--bg);stroke-width:1.5}
+  .linechart .lc-val{fill:var(--ink);font-size:10px;font-weight:700;font-family:inherit}
+  .linechart .lc-x{fill:var(--muted);font-size:9px;font-family:inherit}
   .catbar{margin-bottom:8px}
   .catbar .cb-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
   .catbar .cb-name{color:var(--ink);font-weight:600}
@@ -449,6 +456,11 @@
     #reportPrintArea .rp-stat{border:1px solid #999}
     #reportPrintArea .bc-v,#reportPrintArea .bc-x,#reportPrintArea .rp-sk,#reportPrintArea .rp-foot,#reportPrintArea .cb-amt{color:#444}
     #reportPrintArea .rp-row{border-bottom:1px solid #ccc}
+    #reportPrintArea .linechart .lc-area{fill:#222 !important;opacity:.08;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .linechart .lc-line{stroke:#222 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .linechart .lc-dot{fill:#000 !important;stroke:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #reportPrintArea .linechart .lc-val{fill:#000 !important}
+    #reportPrintArea .linechart .lc-x{fill:#555 !important}
     @page{margin:8mm}
   }
 </style>
@@ -1670,6 +1682,36 @@ $("teSave").onclick = ()=>{
 };
 
 /* ---------- Monthly report ---------- */
+/* SVG line chart: points = [{label, value}] → line + dots + $ labels */
+function lineChart(points){
+  if(!points.length) return "";
+  const W=320, H=130, padX=14, padTop=22, padBot=20;
+  const vals = points.map(p=>p.value);
+  const max = Math.max(...vals), min = Math.min(...vals, 0);
+  const span = (max-min)||1;
+  const innerW = W - padX*2, innerH = H - padTop - padBot;
+  const n = points.length;
+  const x = i => n>1 ? padX + (i/(n-1))*innerW : W/2;
+  const y = v => padTop + innerH - ((v-min)/span)*innerH;
+
+  const linePts = points.map((p,i)=>`${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+  const areaPts = `${x(0).toFixed(1)},${(padTop+innerH).toFixed(1)} ${linePts} ${x(n-1).toFixed(1)},${(padTop+innerH).toFixed(1)}`;
+
+  let dots="", labels="", xlabels="";
+  points.forEach((p,i)=>{
+    const px=x(i), py=y(p.value);
+    dots += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.5" class="lc-dot"/>`;
+    labels += `<text x="${px.toFixed(1)}" y="${(py-8).toFixed(1)}" class="lc-val" text-anchor="middle">$${Math.round(p.value)}</text>`;
+    xlabels += `<text x="${px.toFixed(1)}" y="${(H-6)}" class="lc-x" text-anchor="middle">${p.label}</text>`;
+  });
+
+  return `<svg class="linechart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <polygon points="${areaPts}" class="lc-area"/>
+    <polyline points="${linePts}" class="lc-line"/>
+    ${dots}${labels}${xlabels}
+  </svg>`;
+}
+
 function monthKey(ts){ const d=new Date(ts); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function monthLabel(key){ const [y,m]=key.split("-"); return new Date(y,m-1,1).toLocaleDateString(undefined,{month:"long",year:"numeric"}); }
 
@@ -1735,13 +1777,12 @@ function renderReport(key){
     <div class="catbar"><div class="cb-top"><span class="cb-name">${esc(catLabel(c))}</span><span class="cb-amt">${money(v)} · ${Math.round(v/gTotal*100)}%</span></div>
     <div class="cb-track"><div class="cb-fill" style="width:${(v/catMax)*100}%"></div></div></div>`).join("");
 
-  // per-trip bar chart
+  // per-trip line chart
   const tripsSorted = mTrips.slice().sort((a,b)=>a.ts-b.ts);
-  const tMax = Math.max(...tripsSorted.map(t=>t.total),1);
-  const tripBars = tripsSorted.map(t=>{
-    const d=new Date(t.ts); const h=Math.round(t.total/tMax*100);
-    return `<div class="bc-col"><div class="bc-v">$${Math.round(t.total)}</div><div class="bc-bar" style="height:${h}%"></div><div class="bc-x">${d.getMonth()+1}/${d.getDate()}</div></div>`;
-  }).join("");
+  const tripChart = lineChart(tripsSorted.map(tr=>{
+    const d=new Date(tr.ts);
+    return { label:`${d.getMonth()+1}/${d.getDate()}`, value:tr.total };
+  }));
 
   // trip list
   const itemsLbl2 = t("items").toLowerCase();
@@ -1766,6 +1807,10 @@ function renderReport(key){
   });
   const avgMpg = mpgThisMonth.length ? mpgThisMonth.reduce((a,b)=>a+b,0)/mpgThisMonth.length : null;
   const fuelSorted = mFuel.slice().sort((a,b)=>a.ts-b.ts);
+  const fuelChart = lineChart(fuelSorted.map(f=>{
+    const d=new Date(f.ts);
+    return { label:`${d.getMonth()+1}/${d.getDate()}`, value:f.total };
+  }));
   const fuelList = fuelSorted.slice().reverse().map(f=>{
     const d=new Date(f.ts); const bits=[];
     if(f.gallons) bits.push(f.gallons.toFixed(2)+" gal");
@@ -1800,7 +1845,7 @@ function renderReport(key){
         <div class="rp-stat"><div class="rp-sk">${t("avgTrip")}</div><div class="rp-sv">${money(gAvg)}</div></div>
       </div>
       <div class="rp-chart-lbl">${t("spendByCategory")}</div>${catBars}
-      <div class="rp-chart-lbl">${t("spendPerTrip")}</div><div class="bchart">${tripBars}</div>
+      <div class="rp-chart-lbl">${t("spendPerTrip")}</div>${tripChart}
       <div class="rp-chart-lbl">${t("allTrips")}</div>${tripList}`;
   }
 
@@ -1815,6 +1860,7 @@ function renderReport(key){
         ${avgMpg?`<div class="rp-stat"><div class="rp-sk">${t("avgMpg")}</div><div class="rp-sv">${avgMpg.toFixed(1)}</div></div>`:``}
         ${avgPpg?`<div class="rp-stat"><div class="rp-sk">${t("avgPgal")}</div><div class="rp-sv">$${avgPpg.toFixed(2)}</div></div>`:``}
       </div>
+      ${fuelSorted.length>1?`<div class="rp-chart-lbl">${t("monthlyFuelSpend")}</div>${fuelChart}`:``}
       <div class="rp-chart-lbl">${t("fillupsLbl")}</div>${fuelList}`;
   }
 
